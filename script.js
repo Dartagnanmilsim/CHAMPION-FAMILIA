@@ -55,12 +55,29 @@ document.getElementById("adminFases").style.display="block";
 document.getElementById("adminResultados").style.display="block";
 
 renderResultadosAdmin();
+renderLista();
 
 }else{
 
 alert("Clave incorrecta");
 
 }
+
+}
+
+
+// ================= ELIMINAR PARTICIPANTE =================
+
+function eliminarParticipante(id){
+
+if(!admin){
+alert("Solo administrador");
+return;
+}
+
+if(!confirm("¿Eliminar participante?")) return;
+
+db.ref("participantes/"+id).remove();
 
 }
 
@@ -145,17 +162,6 @@ idExistente=id;
 
 if(idExistente){
 
-const p=participantes[idExistente];
-
-Object.keys(picks).forEach(fase=>{
-
-if(p.picks && p.picks[fase]){
-alert("Ya registró esta fase");
-return;
-}
-
-});
-
 db.ref("participantes/"+idExistente+"/picks").update(picks);
 
 }else{
@@ -236,17 +242,6 @@ db.ref("resultados").set(data);
 }
 
 
-// ================= ELIMINAR =================
-
-function eliminar(id){
-
-if(!admin) return alert("Solo admin");
-
-db.ref("participantes/"+id).remove();
-
-}
-
-
 // ================= CALCULAR PUNTOS =================
 
 function calcularPuntos(picks){
@@ -295,7 +290,13 @@ const puntos=calcularPuntos(p.picks);
 cont.innerHTML+=`
 <div class="participante">
 <b>${p.nombre}</b> — ${puntos} pts
-${admin?`<button class="eliminar" onclick="eliminar('${id}')">Eliminar</button>`:""}
+
+${admin ? `
+<button class="eliminar" onclick="eliminarParticipante('${id}')">
+Eliminar
+</button>
+` : ""}
+
 ${picksHTML}
 </div>
 `;
@@ -337,7 +338,7 @@ cont.innerHTML+=`<div>${i+1}. ${p.nombre} — ${p.puntos} pts</div>`;
 }
 
 
-// ================= FIREBASE LISTEN =================
+// ================= FIREBASE =================
 
 db.ref("config").on("value",snap=>{
 config=snap.val()||{};
