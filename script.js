@@ -1,4 +1,3 @@
-// 🔥 CONFIG FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyDugdPoh8Hm0U6tcdKgd4AzXd9EWN4b4LY",
   authDomain: "champions-top8.firebaseapp.com",
@@ -12,9 +11,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-console.log("Firebase conectado");
-
-// EQUIPOS
 const equipos = [
   "Real Madrid","Manchester City","Bayern","PSG",
   "Barcelona","Arsenal","Inter","Milan",
@@ -73,7 +69,6 @@ function guardar() {
   });
 
   alert("Guardado correctamente");
-
 }
 
 // ESCUCHAR PARTICIPANTES
@@ -82,45 +77,43 @@ db.ref("participantes").on("value", snap => {
   const data = snap.val();
   datosGlobal = data || {};
 
+  renderLista();
+
+});
+
+function renderLista() {
+
   const lista = document.getElementById("lista");
   lista.innerHTML = "";
 
-  if (!data) {
+  if (!datosGlobal) {
     lista.innerHTML = "<p>No hay participantes</p>";
     return;
   }
 
-  Object.keys(data).forEach(id => {
+  Object.keys(datosGlobal).forEach(id => {
 
-    const p = data[id];
+    const p = datosGlobal[id];
 
     const div = document.createElement("div");
     div.className = "participante";
 
+    let chips = "";
+
+    p.top8.forEach(eq => {
+      chips += `<span class="chip">${eq}</span>`;
+    });
+
     div.innerHTML = `
-      <b>${p.nombre}</b><br>
-      <button onclick="ver('${id}')">Ver selección</button>
-      ${adminActivo ? `<button onclick="borrar('${id}')">Eliminar</button>` : ""}
-      <div id="detalle-${id}"></div>
+      <div class="nombre">${p.nombre}</div>
+      <div class="chips">${chips}</div>
+      ${adminActivo ? `<button class="btn-mini btn-eliminar" onclick="borrar('${id}')">Eliminar</button>` : ""}
     `;
 
     lista.appendChild(div);
 
   });
 
-});
-
-// VER ELECCIÓN
-function ver(id) {
-
-  const cont = document.getElementById("detalle-" + id);
-  const p = datosGlobal[id];
-
-  cont.innerHTML = `
-    <div style="background:#eee;padding:10px;border-radius:10px;margin-top:5px;">
-      ${p.top8.join(" • ")}
-    </div>
-  `;
 }
 
 // ADMIN
@@ -132,6 +125,7 @@ function activarAdmin() {
     adminActivo = true;
     document.getElementById("modo").innerText = "Modo 🔓 Administrador";
     alert("Admin activado");
+    renderLista(); // 🔥 refresca lista con botones
   } else {
     alert("Clave incorrecta");
   }
@@ -154,5 +148,4 @@ function borrarTodo() {
   }
 
   db.ref("participantes").remove();
-
 }
