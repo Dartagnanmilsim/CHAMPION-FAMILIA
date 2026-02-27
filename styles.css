@@ -1,6 +1,12 @@
 body{
 font-family: Arial, sans-serif;
-background:#f3f4f6;
+background:#f2f2f2;
+margin:0;
+}
+
+.container{
+max-width:500px;
+margin:auto;
 padding:20px;
 }
 
@@ -11,66 +17,47 @@ text-align:center;
 .card{
 background:white;
 padding:20px;
-border-radius:18px;
-margin:20px auto;
-max-width:500px;
-box-shadow:0 4px 12px rgba(0,0,0,0.1);
+border-radius:15px;
+margin-bottom:20px;
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
 }
 
-input{
+input,select{
 width:100%;
-padding:14px;
-margin:10px 0;
-border-radius:12px;
-border:1px solid #ddd;
-font-size:16px;
+padding:12px;
+margin:8px 0;
+border-radius:10px;
+border:1px solid #ccc;
 }
 
 button{
 width:100%;
-padding:14px;
+padding:12px;
 border:none;
-border-radius:12px;
+border-radius:10px;
 background:#4CAF50;
 color:white;
 font-size:16px;
 margin-top:10px;
-cursor:pointer;
 }
 
 button:hover{
-background:#43a047;
-}
-
-.equipos{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-margin-bottom:10px;
-}
-
-.equipo{
-background:#e5e7eb;
-padding:10px;
-border-radius:10px;
-text-align:center;
+opacity:0.9;
 cursor:pointer;
 }
 
-.equipo.activo{
+.adminOnly{
+display:none;
+}
+
+.equipoBtn{
+background:#e0e0e0;
+color:black;
+margin:5px;
+width:48%;
+}
+
+.equipoActivo{
 background:#4CAF50;
 color:white;
-}
-
-.participante{
-background:#f1f1f1;
-padding:12px;
-border-radius:12px;
-margin-top:10px;
-}
-
-.eliminar{
-background:#e53935;
-width:auto;
-margin-top:5px;
 }
