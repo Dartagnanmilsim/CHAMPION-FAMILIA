@@ -43,6 +43,7 @@ input {
   font-size: 16px;
   color: white;
   margin: 5px 0;
+  cursor: pointer;
 }
 
 .green {
@@ -66,6 +67,7 @@ input {
   background: #eee;
   text-align: center;
   cursor: pointer;
+  transition: 0.2s;
 }
 
 .equipo.activo {
@@ -78,9 +80,45 @@ input {
   display: none;
 }
 
+/* PARTICIPANTES */
+
 .participante {
   background: #fafafa;
-  padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 10px;
+  padding: 15px;
+  border-radius: 15px;
+  margin-bottom: 15px;
+}
+
+.nombre {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.chip {
+  background: #4CAF50;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.btn-mini {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  margin-top: 5px;
+  cursor: pointer;
+}
+
+.btn-eliminar {
+  background: #E74C3C;
+  color: white;
 }
