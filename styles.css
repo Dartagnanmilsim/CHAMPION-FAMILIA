@@ -80,6 +80,13 @@ input {
   display: none;
 }
 
+.logo {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
 .participante {
   background: #fafafa;
   padding: 15px;
@@ -108,22 +115,15 @@ input {
   font-size: 12px;
 }
 
-.btn-mini {
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: none;
-  margin-top: 10px;
-  cursor: pointer;
-}
-
-.btn-eliminar {
-  background: #E74C3C;
-  color: white;
-}
-
 .puntos {
   font-size: 14px;
   font-weight: bold;
   color: #4CAF50;
   margin-top: 5px;
+}
+
+.ranking-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  font-weight: bold;
 }
