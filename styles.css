@@ -18,17 +18,7 @@ body {
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-input {
-  width: 100%;
-  padding: 15px;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  margin-bottom: 15px;
-}
-
-.center {
-  text-align: center;
-}
+.center { text-align: center; }
 
 .btn {
   width: 80%;
@@ -37,7 +27,6 @@ input {
   border-radius: 12px;
   color: white;
   margin: 5px 0;
-  cursor: pointer;
 }
 
 .green { background: #4CAF50; }
@@ -45,13 +34,13 @@ input {
 
 .equipos-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2,1fr);
   gap: 10px;
 }
 
 .equipo {
-  padding: 12px;
-  border-radius: 12px;
+  padding: 10px;
+  border-radius: 10px;
   background: #eee;
   text-align: center;
   cursor: pointer;
@@ -62,44 +51,20 @@ input {
   color: white;
 }
 
-.equipo input {
-  display: none;
-}
-
-.participante {
-  background: #fafafa;
-  padding: 15px;
-  border-radius: 15px;
-  margin-bottom: 15px;
-}
-
-.chip {
-  background: #4CAF50;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  margin: 2px;
-  display: inline-block;
-}
-
 .fase-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #f7f7f7;
-  padding: 12px;
-  border-radius: 12px;
-  margin-bottom: 10px;
+  display:flex;
+  justify-content:space-between;
+  background:#f7f7f7;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:10px;
 }
 
 .puntos-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #f7f7f7;
-  padding: 12px 15px;
-  border-radius: 12px;
-  margin-bottom: 10px;
-  font-size: 15px;
+  display:flex;
+  justify-content:space-between;
+  background:#f7f7f7;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:10px;
 }
