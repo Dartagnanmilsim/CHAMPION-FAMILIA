@@ -1,34 +1,20 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-getDatabase,
-ref,
-set,
-push,
-onValue,
-remove,
-update
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+// ================= FIREBASE =================
 
 const firebaseConfig = {
 apiKey: "AIzaSyDugdPoh8Hm0U6tcdKgd4AzXd9EWN4b4LY",
 authDomain: "champions-top8.firebaseapp.com",
 databaseURL: "https://champions-top8-default-rtdb.firebaseio.com",
 projectId: "champions-top8",
-storageBucket: "champions-top8.firebasestorage.app",
+storageBucket: "champions-top8.appspot.com",
 messagingSenderId: "471933898603",
 appId: "1:471933898603:web:7146cb6ea65bd7bf9d062e"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-const ADMIN_PASS = "1234";
 
-let admin = false;
-let participanteActual = "";
-let seleccionActual = [];
-
-/* ================= EQUIPOS CHAMPIONS 2026 ================= */
+// ================= EQUIPOS 2026 =================
 
 const equipos = [
 "PSG",
@@ -49,160 +35,216 @@ const equipos = [
 "Arsenal"
 ];
 
-/* ================= UI EQUIPOS ================= */
 
-const contEquipos = document.getElementById("equiposContainer");
+// ================= VARIABLES =================
 
-equipos.forEach(eq=>{
-const btn=document.createElement("button");
-btn.textContent=eq;
-btn.className="equipoBtn";
+let admin = false;
+let participantes = {};
+let resultados = [];
+let faseActiva = "cuartos";
 
-btn.onclick=()=>{
-if(seleccionActual.includes(eq)){
-seleccionActual=seleccionActual.filter(e=>e!==eq);
-btn.classList.remove("equipoActivo");
-}else{
-seleccionActual.push(eq);
-btn.classList.add("equipoActivo");
+
+// ================= CONTROL FASE =================
+
+function limitePorFase(){
+
+if(faseActiva === "cuartos") return 8;
+if(faseActiva === "semifinal") return 4;
+if(faseActiva === "final") return 2;
+if(faseActiva === "campeon") return 1;
+
+return 0;
 }
-};
 
-contEquipos.appendChild(btn);
-});
 
-/* ================= PARTICIPANTE ================= */
+// ================= LOGIN ADMIN =================
 
-const participanteSelect = document.getElementById("participanteSelect");
-const nuevoNombre = document.getElementById("nuevoNombre");
+function loginAdmin(){
 
-document.getElementById("guardarParticipante").onclick=()=>{
+const clave = document.getElementById("claveAdmin").value;
 
-let nombre = nuevoNombre.value || participanteSelect.value;
+if(clave === "1234"){
+admin = true;
+document.getElementById("modoAdmin").innerText = "Modo 🔓 Administrador";
+renderParticipantes();
+}
 
-if(!nombre) return alert("Nombre requerido");
+}
 
-participanteActual = nombre;
 
-nuevoNombre.value="";
-};
+// ================= BORRAR TODO =================
 
-/* ================= GUARDAR EQUIPOS ================= */
+function borrarTodo(){
 
-document.getElementById("guardarEquipos").onclick=()=>{
+if(!admin) return;
 
-if(!participanteActual) return alert("Selecciona participante");
+if(confirm("Eliminar todo?")){
+db.ref("participantes").remove();
+}
 
-const userRef = ref(db,"participantes/"+participanteActual);
+}
 
-set(userRef,{
-equipos: seleccionActual,
-puntos:0
-});
+
+// ================= GUARDAR PARTICIPANTE =================
+
+function guardarParticipante(){
+
+const select = document.getElementById("selectorNombre");
+const nuevo = document.getElementById("nombreNuevo").value.trim();
+
+let nombre = nuevo || select.value;
+
+if(!nombre) return;
+
+let id = nombre.replace(/\s/g,"_");
+
+if(participantes[id] && participantes[id][faseActiva]){
+alert("Esta persona ya registró esta fase");
+return;
+}
+
+db.ref("participantes/"+id+"/nombre").set(nombre);
+db.ref("participantes/"+id+"/fase").set(faseActiva);
 
 alert("Guardado");
-};
 
-/* ================= ADMIN ================= */
-
-document.getElementById("loginAdmin").onclick=()=>{
-
-const pass=document.getElementById("adminPass").value;
-
-if(pass===ADMIN_PASS){
-
-admin=true;
-
-document.querySelectorAll(".adminOnly").forEach(e=>{
-e.style.display="block";
-});
-
-document.getElementById("modoAdmin").innerText="Modo 🔓 Admin";
-
-}else{
-alert("Clave incorrecta");
 }
 
-};
 
-/* ================= BORRAR TODO ================= */
+// ================= ELIMINAR =================
 
-document.getElementById("borrarTodo").onclick=()=>{
+function eliminarParticipante(id){
 
 if(!admin) return;
 
-remove(ref(db,"participantes"));
+if(confirm("Eliminar participante?")){
+db.ref("participantes/"+id).remove();
+}
 
-};
+}
 
-/* ================= PARTICIPANTES LISTA ================= */
 
-const listaDiv = document.getElementById("listaParticipantes");
+// ================= FASES ADMIN =================
 
-onValue(ref(db,"participantes"),snap=>{
+function guardarFases(){
 
-listaDiv.innerHTML="";
-participanteSelect.innerHTML="<option value=''>Seleccionar</option>";
-
-if(!snap.exists()) return;
-
-snap.forEach(child=>{
-
-const nombre=child.key;
-const data=child.val();
-
-participanteSelect.innerHTML+=`<option>${nombre}</option>`;
-
-const div=document.createElement("div");
-div.className="card";
-
-div.innerHTML=`
-<b>${nombre}</b>
-<br>
-${data.equipos ? data.equipos.join(", ") : ""}
-${admin ? `<button onclick="eliminarUsuario('${nombre}')">Eliminar</button>`:""}
-`;
-
-listaDiv.appendChild(div);
-
-});
-
-});
-
-/* ================= ELIMINAR ================= */
-
-window.eliminarUsuario=(nombre)=>{
 if(!admin) return;
-remove(ref(db,"participantes/"+nombre));
+
+const fases = {
+cuartos: document.getElementById("faseCuartos").checked,
+semifinal: document.getElementById("faseSemi").checked,
+final: document.getElementById("faseFinal").checked,
+campeon: document.getElementById("faseCampeon").checked
 };
 
-/* ================= RANKING ================= */
+db.ref("config/fases").set(fases);
 
-const rankingDiv=document.getElementById("ranking");
+}
 
-onValue(ref(db,"participantes"),snap=>{
 
-if(!snap.exists()) return;
+// ================= RESULTADOS =================
 
-let arr=[];
+function renderResultados(){
 
-snap.forEach(child=>{
-arr.push({
-nombre:child.key,
-puntos:child.val().puntos||0
+const cont = document.getElementById("equiposResultados");
+cont.innerHTML = "";
+
+equipos.forEach(eq => {
+
+const div = document.createElement("div");
+div.className = "equipoBtn";
+
+if(resultados.includes(eq)){
+div.classList.add("activo");
+}
+
+div.innerText = eq;
+
+div.onclick = () => {
+
+if(!admin) return;
+
+if(resultados.includes(eq)){
+resultados = resultados.filter(e=>e!==eq);
+}else{
+resultados.push(eq);
+}
+
+renderResultados();
+};
+
+cont.appendChild(div);
+
 });
-});
 
-arr.sort((a,b)=>b.puntos-a.puntos);
+}
 
-rankingDiv.innerHTML="";
 
-arr.forEach((p,i)=>{
-rankingDiv.innerHTML+=`
-<div>
-${i+1}. ${p.nombre} — ${p.puntos} pts
-</div>
+function guardarResultados(){
+
+if(!admin) return;
+
+db.ref("resultados/"+faseActiva).set(resultados);
+
+alert("Resultados guardados");
+
+}
+
+
+// ================= RENDER PARTICIPANTES =================
+
+function renderParticipantes(){
+
+const cont = document.getElementById("listaParticipantes");
+cont.innerHTML = "";
+
+Object.keys(participantes).forEach(id=>{
+
+const p = participantes[id];
+
+const div = document.createElement("div");
+div.className = "participante";
+
+div.innerHTML = `
+<b>${p.nombre}</b>
+${admin ? `<button class="eliminar" onclick="eliminarParticipante('${id}')">Eliminar</button>` : ""}
 `;
-});
+
+cont.appendChild(div);
 
 });
+
+}
+
+
+// ================= REALTIME =================
+
+db.ref("participantes").on("value", snap=>{
+
+participantes = snap.val() || {};
+renderParticipantes();
+
+});
+
+
+db.ref("config/fases").on("value", snap=>{
+
+const f = snap.val();
+if(!f) return;
+
+if(f.cuartos) faseActiva="cuartos";
+if(f.semifinal) faseActiva="semifinal";
+if(f.final) faseActiva="final";
+if(f.campeon) faseActiva="campeon";
+
+});
+
+
+db.ref("resultados").on("value", snap=>{
+renderResultados();
+});
+
+
+// ================= INIT =================
+
+renderResultados();
