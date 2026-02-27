@@ -1,244 +1,355 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getDatabase,
-  ref,
-  push,
-  set,
-  remove,
-  onValue,
-  get
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+// ================= FIREBASE =================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDugdPoh8Hm0U6tcdKgd4AzXd9EWN4b4LY",
-  authDomain: "champions-top8.firebaseapp.com",
-  databaseURL: "https://champions-top8-default-rtdb.firebaseio.com",
-  projectId: "champions-top8",
-  storageBucket: "champions-top8.appspot.com",
-  messagingSenderId: "471933898603",
-  appId: "1:471933898603:web:7146cb6ea65bd7bf9d062e"
+apiKey: "AIzaSyDugdPoh8Hm0U6tcdKgd4AzXd9EWN4b4LY",
+authDomain: "champions-top8.firebaseapp.com",
+databaseURL: "https://champions-top8-default-rtdb.firebaseio.com",
+projectId: "champions-top8"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-let admin = false;
 
-let faseActual = "cuartos";
-
-const limiteFase = {
-  cuartos: 8,
-  semifinal: 4,
-  final: 2,
-  campeon: 1
-};
+// ================= DATA =================
 
 const equipos = [
-  "Real Madrid","Manchester City","Bayern","PSG",
-  "Barcelona","Arsenal","Inter","Milan",
-  "Atlético","Dortmund","Napoli","Benfica",
-  "Porto","Leipzig","Juventus","Chelsea"
+"Real Madrid","Manchester City","Bayern","PSG",
+"Barcelona","Arsenal","Inter","Milan",
+"Atlético","Dortmund","Napoli","Benfica",
+"Porto","Leipzig","Juventus","Chelsea"
 ];
 
-let seleccion = [];
+const limites = {
+cuartos:8,
+semifinal:4,
+final:2,
+campeon:1
+};
 
-const equiposContainer = document.getElementById("equiposContainer");
-const participantesDiv = document.getElementById("participantes");
+const puntosFase = {
+cuartos:1,
+semifinal:2,
+final:3,
+campeon:5
+};
+
+let admin=false;
+let config={};
+let resultados={};
+let participantes={};
 
 
-// =====================
-// RENDER EQUIPOS
-// =====================
+// ================= ADMIN =================
 
-function renderEquipos() {
+function loginAdmin(){
 
-  equiposContainer.innerHTML = "";
+const pass=document.getElementById("adminPass").value;
 
-  equipos.forEach(eq => {
+if(pass==="1234"){
 
-    const btn = document.createElement("button");
-    btn.textContent = eq;
+admin=true;
 
-    btn.onclick = () => {
+document.getElementById("modo").innerText="Modo 🔓 Administrador";
+document.getElementById("adminFases").style.display="block";
+document.getElementById("adminResultados").style.display="block";
 
-      const max = limiteFase[faseActual];
+renderResultadosAdmin();
 
-      if (seleccion.includes(eq)) {
+}else{
 
-        seleccion = seleccion.filter(e => e !== eq);
-        btn.classList.remove("activo");
-        return;
-      }
+alert("Clave incorrecta");
 
-      if (seleccion.length >= max) {
-        alert("Solo puedes elegir " + max + " equipos");
-        return;
-      }
-
-      seleccion.push(eq);
-      btn.classList.add("activo");
-    };
-
-    equiposContainer.appendChild(btn);
-  });
 }
 
-renderEquipos();
+}
 
 
+// ================= PANEL PARTICIPANTE =================
 
-// =====================
-// GUARDAR SELECCIÓN
-// =====================
+function renderPanel(){
 
-window.guardarSeleccion = async function () {
+const panel=document.getElementById("panelFases");
+panel.innerHTML="";
 
-  const nombre = document.getElementById("nombre").value.trim();
+Object.keys(limites).forEach(fase=>{
 
-  if (!nombre) {
-    alert("Ingresa nombre");
-    return;
-  }
+if(!config[fase]) return;
 
-  const max = limiteFase[faseActual];
+panel.innerHTML+=`
+<h3>${fase.toUpperCase()} (${limites[fase]})</h3>
+<div class="equipos" id="pick-${fase}"></div>
+`;
 
-  if (seleccion.length !== max) {
-    alert("Debes elegir " + max + " equipos");
-    return;
-  }
+const cont=document.getElementById(`pick-${fase}`);
 
-  const participantesRef = ref(db, "participantes");
+equipos.forEach(eq=>{
 
-  const snapshot = await get(participantesRef);
+const div=document.createElement("div");
+div.className="equipo";
+div.innerText=eq;
 
-  let existenteId = null;
+div.onclick=()=>{
 
-  if (snapshot.exists()) {
+const activos=cont.querySelectorAll(".activo");
 
-    const data = snapshot.val();
+if(!div.classList.contains("activo") && activos.length>=limites[fase]){
+alert("Límite alcanzado");
+return;
+}
 
-    Object.keys(data).forEach(id => {
+div.classList.toggle("activo");
 
-      if (data[id].nombre.toLowerCase() === nombre.toLowerCase()) {
-        existenteId = id;
-      }
-
-    });
-  }
-
-  let participanteId;
-
-  if (existenteId) {
-
-    participanteId = existenteId;
-
-  } else {
-
-    const nuevo = push(participantesRef);
-    participanteId = nuevo.key;
-
-    await set(ref(db, "participantes/" + participanteId), {
-      nombre,
-      picks: {}
-    });
-  }
-
-  await set(
-    ref(db, `participantes/${participanteId}/picks/${faseActual}`),
-    seleccion
-  );
-
-  alert("Guardado");
-
-  seleccion = [];
-  renderEquipos();
 };
 
+cont.appendChild(div);
+
+});
+
+});
+
+}
 
 
-// =====================
-// ADMIN LOGIN
-// =====================
+// ================= GUARDAR =================
 
-window.loginAdmin = function () {
+function guardar(){
 
-  const pass = document.getElementById("adminPass").value;
+const nombre=document.getElementById("nombre").value.trim();
+if(!nombre) return alert("Ingrese nombre");
 
-  if (pass === "1234") {
-    admin = true;
-    document.getElementById("modo").innerText = "Modo 🔓 Administrador";
-    alert("Admin activado");
-  } else {
-    alert("Clave incorrecta");
-  }
+const picks={};
+
+Object.keys(limites).forEach(fase=>{
+
+const cont=document.getElementById(`pick-${fase}`);
+if(!cont) return;
+
+const activos=cont.querySelectorAll(".activo");
+const lista=Array.from(activos).map(e=>e.innerText);
+
+if(lista.length>0) picks[fase]=lista;
+
+});
+
+
+let idExistente=null;
+
+Object.keys(participantes).forEach(id=>{
+
+if(participantes[id].nombre.toLowerCase()===nombre.toLowerCase())
+idExistente=id;
+
+});
+
+
+if(idExistente){
+
+const p=participantes[idExistente];
+
+Object.keys(picks).forEach(fase=>{
+
+if(p.picks && p.picks[fase]){
+alert("Ya registró esta fase");
+return;
+}
+
+});
+
+db.ref("participantes/"+idExistente+"/picks").update(picks);
+
+}else{
+
+db.ref("participantes").push({
+nombre,
+picks
+});
+
+}
+
+}
+
+
+// ================= CONFIG =================
+
+function guardarConfig(){
+
+config={
+cuartos:document.getElementById("check-cuartos").checked,
+semifinal:document.getElementById("check-semifinal").checked,
+final:document.getElementById("check-final").checked,
+campeon:document.getElementById("check-campeon").checked
 };
 
+db.ref("config").set(config);
+
+}
 
 
-// =====================
-// ELIMINAR PARTICIPANTE
-// =====================
+// ================= RESULTADOS ADMIN =================
 
-window.eliminarParticipante = async function (id) {
+function renderResultadosAdmin(){
 
-  if (!admin) {
-    alert("Solo admin");
-    return;
-  }
+Object.keys(limites).forEach(fase=>{
 
-  if (!confirm("Eliminar participante?")) return;
+const cont=document.getElementById("res-"+fase);
+cont.innerHTML=`<h4>${fase}</h4><div class="equipos" id="res-grid-${fase}"></div>`;
 
-  await remove(ref(db, "participantes/" + id));
+const grid=document.getElementById(`res-grid-${fase}`);
+
+equipos.forEach(eq=>{
+
+const div=document.createElement("div");
+div.className="equipo";
+div.innerText=eq;
+
+div.onclick=()=>{
+
+if(!admin) return;
+
+div.classList.toggle("activo");
+
 };
 
+grid.appendChild(div);
+
+});
+
+});
+
+}
 
 
+function guardarResultados(){
 
-// =====================
-// MOSTRAR PARTICIPANTES
-// =====================
+const data={};
 
-const participantesRef = ref(db, "participantes");
+Object.keys(limites).forEach(fase=>{
 
-onValue(participantesRef, snapshot => {
+const activos=document.querySelectorAll(`#res-grid-${fase} .activo`);
+data[fase]=Array.from(activos).map(e=>e.innerText);
 
-  participantesDiv.innerHTML = "";
+});
 
-  if (!snapshot.exists()) return;
+db.ref("resultados").set(data);
 
-  const data = snapshot.val();
+}
 
-  Object.keys(data).forEach(id => {
 
-    const p = data[id];
+// ================= ELIMINAR =================
 
-    let picksHTML = "";
+function eliminar(id){
 
-    if (p.picks) {
+if(!admin) return alert("Solo admin");
 
-      Object.keys(p.picks).forEach(fase => {
+db.ref("participantes/"+id).remove();
 
-        picksHTML += `
-          <div>
-            <b>${fase.toUpperCase()}</b>: 
-            ${p.picks[fase].join(" • ")}
-          </div>
-        `;
-      });
-    }
+}
 
-    const div = document.createElement("div");
 
-    div.className = "participante";
+// ================= CALCULAR PUNTOS =================
 
-    div.innerHTML = `
-      <strong>${p.nombre}</strong>
-      ${admin ? `<br><button onclick="eliminarParticipante('${id}')">Eliminar</button>` : ""}
-      <div>${picksHTML}</div>
-    `;
+function calcularPuntos(picks){
 
-    participantesDiv.appendChild(div);
+let total=0;
 
-  });
+Object.keys(picks||{}).forEach(fase=>{
 
+if(!resultados[fase]) return;
+
+picks[fase].forEach(eq=>{
+
+if(resultados[fase].includes(eq))
+total+=puntosFase[fase];
+
+});
+
+});
+
+return total;
+
+}
+
+
+// ================= LISTA =================
+
+function renderLista(){
+
+const cont=document.getElementById("lista");
+cont.innerHTML="";
+
+Object.keys(participantes).forEach(id=>{
+
+const p=participantes[id];
+
+let picksHTML="";
+
+Object.keys(p.picks||{}).forEach(fase=>{
+
+picksHTML+=`<div><b>${fase}</b>: ${p.picks[fase].join(" • ")}</div>`;
+
+});
+
+const puntos=calcularPuntos(p.picks);
+
+cont.innerHTML+=`
+<div class="participante">
+<b>${p.nombre}</b> — ${puntos} pts
+${admin?`<button class="eliminar" onclick="eliminar('${id}')">Eliminar</button>`:""}
+${picksHTML}
+</div>
+`;
+
+});
+
+renderRanking();
+
+}
+
+
+// ================= RANKING =================
+
+function renderRanking(){
+
+const cont=document.getElementById("ranking");
+
+let arr=Object.keys(participantes).map(id=>{
+
+const p=participantes[id];
+
+return{
+nombre:p.nombre,
+puntos:calcularPuntos(p.picks)
+};
+
+});
+
+arr.sort((a,b)=>b.puntos-a.puntos);
+
+cont.innerHTML="";
+
+arr.forEach((p,i)=>{
+
+cont.innerHTML+=`<div>${i+1}. ${p.nombre} — ${p.puntos} pts</div>`;
+
+});
+
+}
+
+
+// ================= FIREBASE LISTEN =================
+
+db.ref("config").on("value",snap=>{
+config=snap.val()||{};
+renderPanel();
+});
+
+db.ref("resultados").on("value",snap=>{
+resultados=snap.val()||{};
+renderLista();
+});
+
+db.ref("participantes").on("value",snap=>{
+participantes=snap.val()||{};
+renderLista();
 });
