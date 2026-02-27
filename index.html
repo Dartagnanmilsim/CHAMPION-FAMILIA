@@ -1,22 +1,28 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Champions Top 8</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <title>Champions Predictor</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <h1>Predicción Champions League</h1>
+<div class="container">
+
+  <h1>⚽ Champions Top 8</h1>
 
   <div class="card">
-    <h2>Crear Participante</h2>
-    <input type="text" id="nombre" placeholder="Nombre" />
+
+    <input type="text" id="nombre" placeholder="Nombre del participante">
 
     <h3>Selecciona tu Top 8</h3>
-    <div id="equipos"></div>
 
-    <button onclick="guardar()">Guardar</button>
+    <div id="equipos" class="equipos-grid"></div>
+
+    <div class="center">
+      <button onclick="guardar()">Guardar</button>
+    </div>
+
   </div>
 
   <div class="card">
@@ -25,12 +31,18 @@
   </div>
 
   <div class="card admin">
-    <h2>Administrador</h2>
-    <input type="password" id="adminPass" placeholder="Clave" />
+    <h3>Administrador</h3>
+    <input type="password" id="adminPass" placeholder="Clave">
+    <div class="center">
+      <button onclick="activarAdmin()">Ingresar</button>
+      <button onclick="borrarTodo()">Borrar Todo</button>
+    </div>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-  <script src="script.js"></script>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
