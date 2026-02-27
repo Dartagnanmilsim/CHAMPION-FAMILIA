@@ -14,10 +14,22 @@ const db = firebase.database();
 // ================= DATA =================
 
 const equipos = [
-"Real Madrid","Manchester City","Bayern","PSG",
-"Barcelona","Arsenal","Inter","Milan",
-"Atlético","Dortmund","Napoli","Benfica",
-"Porto","Leipzig","Juventus","Chelsea"
+"Paris",
+"Chelsea",
+"Galatasaray",
+"Liverpool",
+"Real Madrid",
+"Manchester City",
+"Atalanta",
+"Bayern Múnich",
+"Newcastle",
+"Barcelona",
+"Atlético Madrid",
+"Tottenham",
+"Bodø/Glimt",
+"Sporting CP",
+"Bayer Leverkusen",
+"Arsenal"
 ];
 
 const limites = {
