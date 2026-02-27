@@ -4,48 +4,135 @@ const firebaseConfig = {
 apiKey: "AIzaSyDugdPoh8Hm0U6tcdKgd4AzXd9EWN4b4LY",
 authDomain: "champions-top8.firebaseapp.com",
 databaseURL: "https://champions-top8-default-rtdb.firebaseio.com",
-projectId: "champions-top8",
-storageBucket: "champions-top8.appspot.com",
-messagingSenderId: "471933898603",
-appId: "1:471933898603:web:7146cb6ea65bd7bf9d062e"
+projectId: "champions-top8"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 
-// ================= EQUIPOS 2026 =================
+// ================= DATA =================
 
 const equipos = [
-"PSG",
-"Chelsea",
-"Galatasaray",
-"Liverpool",
-"Real Madrid",
-"Manchester City",
-"Atalanta",
-"Bayern Múnich",
-"Newcastle",
-"Barcelona",
-"Atlético Madrid",
-"Tottenham",
-"Bodø/Glimt",
-"Sporting CP",
-"Bayer Leverkusen",
-"Arsenal"
+"Real Madrid","Manchester City","Bayern","PSG",
+"Barcelona","Arsenal","Inter","Milan",
+"Atlético","Dortmund","Napoli","Benfica",
+"Porto","Leipzig","Juventus","Chelsea"
 ];
 
+const limites = {
+cuartos:8,
+semifinal:4,
+final:2,
+campeon:1
+};
 
-// ================= VARIABLES =================
+const puntosFase = {
+cuartos:1,
+semifinal:2,
+final:3,
+campeon:5
+};
 
-let seleccion = [];
-let admin = false;
-let participantes = {};
+let admin=false;
+let config={};
+let resultados={};
+let participantes={};
 
 
-// ================= RENDER EQUIPOS =================
+// ================= ADMIN =================
 
-const contEquipos = document.getElementById("equiposContainer");
+function loginAdmin(){
+
+const pass=document.getElementById("adminPass").value;
+
+if(pass==="1234"){
+
+admin=true;
+
+document.getElementById("modo").innerText="Modo 🔓 Administrador";
+document.getElementById("adminFases").style.display="block";
+document.getElementById("adminResultados").style.display="block";
+
+renderResultadosAdmin();
+renderLista();
+
+}else{
+
+alert("Clave incorrecta");
+
+}
+
+}
+
+
+// ================= SELECT NOMBRES =================
+
+function cargarSelectNombres(){
+
+const select=document.getElementById("selectNombre");
+
+select.innerHTML=`<option value="">Nuevo participante</option>`;
+
+Object.keys(participantes).forEach(id=>{
+
+const p=participantes[id];
+
+select.innerHTML+=`
+<option value="${p.nombre}">
+${p.nombre}
+</option>
+`;
+
+});
+
+}
+
+
+document.getElementById("selectNombre").addEventListener("change",function(){
+
+const val=this.value;
+
+if(val){
+document.getElementById("nombre").value=val;
+}
+
+});
+
+
+// ================= ELIMINAR =================
+
+function eliminarParticipante(id){
+
+if(!admin){
+alert("Solo administrador");
+return;
+}
+
+if(!confirm("¿Eliminar participante?")) return;
+
+db.ref("participantes/"+id).remove();
+
+}
+
+
+// ================= PANEL PARTICIPANTE =================
+
+function renderPanel(){
+
+const panel=document.getElementById("panelFases");
+panel.innerHTML="";
+
+Object.keys(limites).forEach(fase=>{
+
+if(!config[fase]) return;
+
+panel.innerHTML+=`
+<h3>${fase.toUpperCase()} (${limites[fase]})</h3>
+<div class="equipos" id="pick-${fase}"></div>
+`;
+
+const cont=document.getElementById(`pick-${fase}`);
 
 equipos.forEach(eq=>{
 
@@ -55,19 +142,24 @@ div.innerText=eq;
 
 div.onclick=()=>{
 
-if(seleccion.includes(eq)){
-seleccion=seleccion.filter(e=>e!==eq);
-div.classList.remove("activo");
-}else{
-seleccion.push(eq);
-div.classList.add("activo");
+const activos=cont.querySelectorAll(".activo");
+
+if(!div.classList.contains("activo") && activos.length>=limites[fase]){
+alert("Límite alcanzado");
+return;
 }
+
+div.classList.toggle("activo");
 
 };
 
-contEquipos.appendChild(div);
+cont.appendChild(div);
 
 });
+
+});
+
+}
 
 
 // ================= GUARDAR =================
@@ -75,101 +167,242 @@ contEquipos.appendChild(div);
 function guardar(){
 
 const nombre=document.getElementById("nombre").value.trim();
+if(!nombre) return alert("Ingrese nombre");
 
-if(!nombre){
-alert("Nombre requerido");
-return;
-}
+const picks={};
 
-if(seleccion.length===0){
-alert("Selecciona equipos");
-return;
-}
+Object.keys(limites).forEach(fase=>{
 
-const id=nombre.replace(/\s/g,"_");
+const cont=document.getElementById(`pick-${fase}`);
+if(!cont) return;
 
-db.ref("participantes/"+id).set({
-nombre,
-seleccion
+const activos=cont.querySelectorAll(".activo");
+const lista=Array.from(activos).map(e=>e.innerText);
+
+if(lista.length>0) picks[fase]=lista;
+
 });
 
-alert("Guardado");
+
+let idExistente=null;
+
+Object.keys(participantes).forEach(id=>{
+
+if(participantes[id].nombre.toLowerCase()===nombre.toLowerCase())
+idExistente=id;
+
+});
+
+
+if(idExistente){
+
+const participante=participantes[idExistente];
+
+let faseDuplicada=false;
+
+Object.keys(picks).forEach(fase=>{
+
+if(participante.picks && participante.picks[fase]){
+faseDuplicada=true;
+}
+
+});
+
+if(faseDuplicada){
+alert("Esta persona ya registró esa fase");
+return;
+}
+
+db.ref("participantes/"+idExistente+"/picks").update(picks);
+
+}else{
+
+db.ref("participantes").push({
+nombre,
+picks
+});
+
+}
 
 }
 
 
-// ================= LOGIN =================
+// ================= CONFIG =================
 
-function login(){
+function guardarConfig(){
 
-const clave=document.getElementById("clave").value;
+config={
+cuartos:document.getElementById("check-cuartos").checked,
+semifinal:document.getElementById("check-semifinal").checked,
+final:document.getElementById("check-final").checked,
+campeon:document.getElementById("check-campeon").checked
+};
 
-if(clave==="1234"){
-admin=true;
-document.getElementById("modo").innerText="Modo 🔓 Administrador";
-render();
+db.ref("config").set(config);
+
 }
 
-}
 
+// ================= RESULTADOS ADMIN =================
 
-// ================= BORRAR TODO =================
+function renderResultadosAdmin(){
 
-function borrarTodo(){
+Object.keys(limites).forEach(fase=>{
+
+const cont=document.getElementById("res-"+fase);
+cont.innerHTML=`<h4>${fase}</h4><div class="equipos" id="res-grid-${fase}"></div>`;
+
+const grid=document.getElementById(`res-grid-${fase}`);
+
+equipos.forEach(eq=>{
+
+const div=document.createElement("div");
+div.className="equipo";
+div.innerText=eq;
+
+div.onclick=()=>{
 
 if(!admin) return;
 
-if(confirm("Eliminar todo?")){
-db.ref("participantes").remove();
-}
+div.classList.toggle("activo");
+
+};
+
+grid.appendChild(div);
+
+});
+
+});
 
 }
 
 
-// ================= ELIMINAR =================
+function guardarResultados(){
 
-function eliminar(id){
+const data={};
 
-if(!admin) return;
+Object.keys(limites).forEach(fase=>{
 
-db.ref("participantes/"+id).remove();
+const activos=document.querySelectorAll(`#res-grid-${fase} .activo`);
+data[fase]=Array.from(activos).map(e=>e.innerText);
+
+});
+
+db.ref("resultados").set(data);
 
 }
 
 
-// ================= RENDER PARTICIPANTES =================
+// ================= PUNTOS =================
 
-function render(){
+function calcularPuntos(picks){
 
-const lista=document.getElementById("lista");
-lista.innerHTML="";
+let total=0;
+
+Object.keys(picks||{}).forEach(fase=>{
+
+if(!resultados[fase]) return;
+
+picks[fase].forEach(eq=>{
+
+if(resultados[fase].includes(eq))
+total+=puntosFase[fase];
+
+});
+
+});
+
+return total;
+
+}
+
+
+// ================= LISTA =================
+
+function renderLista(){
+
+const cont=document.getElementById("lista");
+cont.innerHTML="";
 
 Object.keys(participantes).forEach(id=>{
 
 const p=participantes[id];
 
-const div=document.createElement("div");
-div.className="participante";
+let picksHTML="";
 
-div.innerHTML=`
-<b>${p.nombre}</b>
-${admin?`<button class="eliminar" onclick="eliminar('${id}')">Eliminar</button>`:""}
-<br>
-${p.seleccion.join(" • ")}
+Object.keys(p.picks||{}).forEach(fase=>{
+
+picksHTML+=`<div><b>${fase}</b>: ${p.picks[fase].join(" • ")}</div>`;
+
+});
+
+const puntos=calcularPuntos(p.picks);
+
+cont.innerHTML+=`
+<div class="participante">
+<b>${p.nombre}</b> — ${puntos} pts
+
+${admin ? `
+<button class="eliminar" onclick="eliminarParticipante('${id}')">
+Eliminar
+</button>
+` : ""}
+
+${picksHTML}
+</div>
 `;
 
-lista.appendChild(div);
+});
+
+renderRanking();
+
+}
+
+
+// ================= RANKING =================
+
+function renderRanking(){
+
+const cont=document.getElementById("ranking");
+
+let arr=Object.keys(participantes).map(id=>{
+
+const p=participantes[id];
+
+return{
+nombre:p.nombre,
+puntos:calcularPuntos(p.picks)
+};
+
+});
+
+arr.sort((a,b)=>b.puntos-a.puntos);
+
+cont.innerHTML="";
+
+arr.forEach((p,i)=>{
+
+cont.innerHTML+=`<div>${i+1}. ${p.nombre} — ${p.puntos} pts</div>`;
 
 });
 
 }
 
 
-// ================= REALTIME =================
+// ================= FIREBASE =================
+
+db.ref("config").on("value",snap=>{
+config=snap.val()||{};
+renderPanel();
+});
+
+db.ref("resultados").on("value",snap=>{
+resultados=snap.val()||{};
+renderLista();
+});
 
 db.ref("participantes").on("value",snap=>{
-
 participantes=snap.val()||{};
-render();
-
+renderLista();
+cargarSelectNombres();
 });
