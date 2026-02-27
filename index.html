@@ -40,14 +40,29 @@
     <p id="modo">Modo 👀 Solo ver</p>
   </div>
 
-  <!-- CONFIGURACION FASES -->
+  <!-- CONFIGURACION -->
   <div class="card" id="panelConfig" style="display:none;">
     <h2>⚙️ Fases activas</h2>
 
-    <label><input type="checkbox" id="act-cuartos"> Cuartos</label><br>
-    <label><input type="checkbox" id="act-semifinal"> Semifinal</label><br>
-    <label><input type="checkbox" id="act-final"> Final</label><br>
-    <label><input type="checkbox" id="act-campeon"> Campeón</label>
+    <div class="fase-row">
+      <span>Cuartos</span>
+      <input type="checkbox" id="act-cuartos">
+    </div>
+
+    <div class="fase-row">
+      <span>Semifinal</span>
+      <input type="checkbox" id="act-semifinal">
+    </div>
+
+    <div class="fase-row">
+      <span>Final</span>
+      <input type="checkbox" id="act-final">
+    </div>
+
+    <div class="fase-row">
+      <span>Campeón</span>
+      <input type="checkbox" id="act-campeon">
+    </div>
 
     <div class="center">
       <button class="btn green" onclick="guardarConfig()">Guardar Configuración</button>
