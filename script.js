@@ -1,9 +1,12 @@
-// 🔥 CONFIGURAR FIREBASE
+// CONFIG FIREBASE (TU CONFIG)
 const firebaseConfig = {
-  apiKey: "API_KEY",
-  authDomain: "PROJECT.firebaseapp.com",
-  databaseURL: "https://PROJECT-default-rtdb.firebaseio.com",
-  projectId: "PROJECT",
+  apiKey: "AIzaSyDugdPoh8Hm0U6tcdKgd4AzXd9EWN4b4LY",
+  authDomain: "champions-top8.firebaseapp.com",
+  databaseURL: "https://champions-top8-default-rtdb.firebaseio.com",
+  projectId: "champions-top8",
+  storageBucket: "champions-top8.firebasestorage.app",
+  messagingSenderId: "471933898603",
+  appId: "1:471933898603:web:7146cb6ea65bd7bf9d062e"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -17,33 +20,33 @@ const equipos = [
 ];
 
 let adminActivo = false;
-let datosGlobal = {}; // guardar participantes en memoria
+let datosGlobal = {};
 
 const contenedor = document.getElementById("equipos");
 
-function renderEquipos() {
-  equipos.forEach(nombre => {
-    const div = document.createElement("div");
-    div.className = "equipo";
+// RENDER EQUIPOS
+equipos.forEach(nombre => {
 
-    div.innerHTML = `
-      <input type="checkbox" value="${nombre}">
-      ${nombre}
-    `;
+  const div = document.createElement("div");
+  div.className = "equipo";
 
-    div.onclick = () => {
-      const check = div.querySelector("input");
-      check.checked = !check.checked;
-      div.classList.toggle("activo");
-    };
+  div.innerHTML = `
+    <input type="checkbox" value="${nombre}">
+    ${nombre}
+  `;
 
-    contenedor.appendChild(div);
-  });
-}
+  div.onclick = () => {
+    const check = div.querySelector("input");
+    check.checked = !check.checked;
+    div.classList.toggle("activo");
+  };
 
-renderEquipos();
+  contenedor.appendChild(div);
+});
 
+// GUARDAR PARTICIPANTE
 function guardar() {
+
   const nombre = document.getElementById("nombre").value.trim();
 
   if (!nombre) {
@@ -54,86 +57,89 @@ function guardar() {
   const checks = document.querySelectorAll(".equipo input:checked");
 
   if (checks.length !== 8) {
-    alert("Debes seleccionar 8 equipos");
+    alert("Selecciona exactamente 8 equipos");
     return;
   }
 
   const top8 = Array.from(checks).map(c => c.value);
 
-  db.ref("participantes").push({ nombre, top8 });
+  db.ref("participantes").push({
+    nombre,
+    top8
+  });
 
   alert("Guardado correctamente");
-  location.reload();
 }
 
-// 🔥 ESCUCHAR PARTICIPANTES EN TIEMPO REAL
-function escuchar() {
-  db.ref("participantes").on("value", snap => {
+// ESCUCHAR PARTICIPANTES
+db.ref("participantes").on("value", snap => {
 
-    const data = snap.val();
-    datosGlobal = data || {};
+  const data = snap.val();
+  datosGlobal = data || {};
 
-    const lista = document.getElementById("lista");
-    lista.innerHTML = "";
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
 
-    if (!data) {
-      lista.innerHTML = "<p>No hay participantes aún</p>";
-      return;
-    }
+  if (!data) {
+    lista.innerHTML = "<p>No hay participantes</p>";
+    return;
+  }
 
-    Object.keys(data).forEach(id => {
-      const p = data[id];
+  Object.keys(data).forEach(id => {
 
-      const div = document.createElement("div");
-      div.className = "participante";
+    const p = data[id];
 
-      div.innerHTML = `
-        <b>${p.nombre}</b>
-        <br>
-        <button onclick="ver('${id}')">Ver selección</button>
-        ${adminActivo ? `<button onclick="borrar('${id}')">Eliminar</button>` : ""}
-        <div id="detalle-${id}" style="margin-top:8px;"></div>
-      `;
+    const div = document.createElement("div");
+    div.className = "participante";
 
-      lista.appendChild(div);
-    });
+    div.innerHTML = `
+      <b>${p.nombre}</b><br>
+      <button onclick="ver('${id}')">Ver selección</button>
+      ${adminActivo ? `<button onclick="borrar('${id}')">Eliminar</button>` : ""}
+      <div id="detalle-${id}"></div>
+    `;
+
+    lista.appendChild(div);
+
   });
-}
 
-escuchar();
+});
 
-// 🔥 VER ELECCIÓN DE PARTICIPANTE
+// VER SELECCIÓN
 function ver(id) {
+
   const cont = document.getElementById("detalle-" + id);
   const p = datosGlobal[id];
 
-  if (!p) return;
-
   cont.innerHTML = `
-    <div style="background:#eee;padding:8px;border-radius:8px;">
+    <div style="background:#eee;padding:10px;border-radius:10px;margin-top:5px;">
       ${p.top8.join(" • ")}
     </div>
   `;
 }
 
-// 🔐 ADMIN
+// ADMIN
 function activarAdmin() {
+
   const pass = document.getElementById("adminPass").value;
 
   if (pass === "1234") {
     adminActivo = true;
     document.getElementById("modo").innerText = "Modo 🔓 Administrador";
-    escuchar();
+    alert("Admin activado");
   } else {
     alert("Clave incorrecta");
   }
 }
 
+// BORRAR
 function borrar(id) {
   db.ref("participantes/" + id).remove();
 }
 
+// BORRAR TODO
 function borrarTodo() {
+
   const pass = document.getElementById("adminPass").value;
 
   if (pass !== "1234") {
