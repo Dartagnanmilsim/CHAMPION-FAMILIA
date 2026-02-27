@@ -14,71 +14,100 @@ const equipos = [
 "Porto","Leipzig","Juventus","Chelsea"
 ];
 
-const fases = ["cuartos","semifinal","final","campeon"];
+const limites = {
+  cuartos:8,
+  semifinal:4,
+  final:2,
+  campeon:1
+};
+
+const fases = Object.keys(limites);
 const pesos = { cuartos:1, semifinal:2, final:3, campeon:5 };
 
+let config = {};
+let resultados = {};
+let participantes = {};
 let adminActivo=false;
-let participantes={};
-let resultados={};
-let config={};
 
-function crearEquipos(containerId){
+// UI PARTICIPANTE POR FASE
+function renderPanelParticipante(){
 
-  const cont=document.getElementById(containerId);
-  if(!cont) return;
+  const panel=document.getElementById("panelFasesParticipante");
+  panel.innerHTML="";
 
-  equipos.forEach(eq=>{
-    const div=document.createElement("div");
-    div.className="equipo";
+  fases.forEach(f=>{
 
-    div.innerHTML=`<input type="checkbox" value="${eq}">${eq}`;
+    if(!config[f]) return;
 
-    div.onclick=()=>{
-      const c=div.querySelector("input");
-      c.checked=!c.checked;
-      div.classList.toggle("activo");
-    };
+    panel.innerHTML+=`<h3>${f.toUpperCase()} (elige ${limites[f]})</h3>
+    <div id="pick-${f}" class="equipos-grid"></div>`;
 
-    cont.appendChild(div);
+    const cont=document.getElementById(`pick-${f}`);
+
+    equipos.forEach(eq=>{
+
+      const div=document.createElement("div");
+      div.className="equipo";
+      div.innerText=eq;
+
+      div.onclick=()=>{
+
+        const activos=cont.querySelectorAll(".activo");
+
+        if(!div.classList.contains("activo") && activos.length>=limites[f]) return;
+
+        div.classList.toggle("activo");
+
+      };
+
+      cont.appendChild(div);
+
+    });
+
   });
+
 }
 
-crearEquipos("equipos");
-fases.forEach(f=>crearEquipos(f));
-
+// GUARDAR PARTICIPANTE
 function guardar(){
 
   const nombre=document.getElementById("nombre").value.trim();
-  if(!nombre) return alert("Ingresa nombre");
+  if(!nombre) return alert("Nombre");
 
   const existe=Object.values(participantes)
-    .some(p=>p.nombre.toLowerCase()===nombre.toLowerCase());
+  .some(p=>p.nombre.toLowerCase()===nombre.toLowerCase());
 
   if(existe) return alert("Nombre ya existe");
 
-  const checks=document.querySelectorAll("#equipos input:checked");
-  if(checks.length!==8) return alert("Selecciona 8 equipos");
+  const picks={};
 
-  const top8=Array.from(checks).map(c=>c.value);
+  fases.forEach(f=>{
 
-  db.ref("participantes").push({nombre,top8});
+    const cont=document.getElementById(`pick-${f}`);
+    if(!cont) return;
+
+    const activos=cont.querySelectorAll(".activo");
+    picks[f]=Array.from(activos).map(d=>d.innerText);
+
+  });
+
+  db.ref("participantes").push({nombre,picks});
 }
 
+// ADMIN
 function activarAdmin(){
 
-  const pass=document.getElementById("adminPass").value;
+  if(document.getElementById("adminPass").value==="1234"){
 
-  if(pass==="1234"){
     adminActivo=true;
 
-    document.getElementById("modo").innerText="Modo 🔓 Admin";
     document.getElementById("panelResultados").style.display="block";
     document.getElementById("panelConfig").style.display="block";
 
-    render();
   }
 }
 
+// CONFIG
 function guardarConfig(){
 
   config={
@@ -91,27 +120,23 @@ function guardarConfig(){
   db.ref("configuracion").set(config);
 }
 
+// RESULTADOS
 function guardarResultados(){
 
   const data={};
 
   fases.forEach(f=>{
-    const checks=document.querySelectorAll(`#${f} input:checked`);
-    data[f]=Array.from(checks).map(c=>c.value);
+
+    const checks=document.querySelectorAll(`#${f} .activo`);
+    data[f]=Array.from(checks).map(d=>d.innerText);
+
   });
 
   db.ref("resultados").set(data);
 }
 
-function borrar(id){
-  db.ref("participantes/"+id).remove();
-}
-
-function borrarTodo(){
-  db.ref("participantes").remove();
-}
-
-function calcularPuntos(top8){
+// PUNTOS
+function calcular(picks){
 
   let pts=0;
 
@@ -119,10 +144,11 @@ function calcularPuntos(top8){
 
     if(!config[f]) return;
 
-    const lista=resultados[f]||[];
+    const res=resultados[f]||[];
+    const sel=picks[f]||[];
 
-    lista.forEach(eq=>{
-      if(top8.includes(eq)) pts+=pesos[f];
+    sel.forEach(eq=>{
+      if(res.includes(eq)) pts+=pesos[f];
     });
 
   });
@@ -130,63 +156,40 @@ function calcularPuntos(top8){
   return pts;
 }
 
-db.ref("participantes").on("value",snap=>{
-  participantes=snap.val()||{};
-  render();
+// LISTENERS
+db.ref("configuracion").on("value",s=>{
+  config=s.val()||{};
+  renderPanelParticipante();
 });
 
-db.ref("resultados").on("value",snap=>{
-  resultados=snap.val()||{};
-  render();
+db.ref("resultados").on("value",s=>{
+  resultados=s.val()||{};
 });
 
-db.ref("configuracion").on("value",snap=>{
-  config=snap.val()||{};
-  render();
+db.ref("participantes").on("value",s=>{
+  participantes=s.val()||{};
+  renderRanking();
 });
 
-function render(){
+// RANKING
+function renderRanking(){
 
-  const lista=document.getElementById("lista");
   const ranking=document.getElementById("ranking");
-
-  lista.innerHTML="";
   ranking.innerHTML="";
 
   const arr=[];
 
-  Object.keys(participantes).forEach(id=>{
-
-    const p=participantes[id];
-    const puntos=calcularPuntos(p.top8);
-
-    arr.push({nombre:p.nombre,puntos});
-
-    let chips="";
-    p.top8.forEach(eq=>{
-      chips+=`<span class="chip">${eq}</span>`;
+  Object.values(participantes).forEach(p=>{
+    arr.push({
+      nombre:p.nombre,
+      puntos:calcular(p.picks||{})
     });
-
-    const div=document.createElement("div");
-    div.className="participante";
-
-    div.innerHTML=`
-      <div><b>${p.nombre}</b></div>
-      <div>⭐ ${puntos} puntos</div>
-      <div>${chips}</div>
-      ${adminActivo?`<button class="btn red" onclick="borrar('${id}')">Eliminar</button>`:""}
-    `;
-
-    lista.appendChild(div);
-
   });
 
   arr.sort((a,b)=>b.puntos-a.puntos);
 
   arr.forEach((r,i)=>{
-    ranking.innerHTML+=`
-      <div>${i+1}. ${r.nombre} — ${r.puntos} pts</div>
-    `;
+    ranking.innerHTML+=`<div>${i+1}. ${r.nombre} — ${r.puntos} pts</div>`;
   });
 
 }
