@@ -7,12 +7,12 @@
 
 <link rel="stylesheet" href="styles.css">
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script type="module" src="script.js"></script>
 
 </head>
-
 <body>
+
+<div class="container">
 
 <h1>⚽ Champions Top 8</h1>
 
@@ -21,11 +21,11 @@
 
 <h2>📝 Participante</h2>
 
-<input id="nombre" placeholder="Nombre">
+<select id="participanteSelect"></select>
 
-<div id="panelFases"></div>
+<input type="text" id="nuevoNombre" placeholder="Nuevo nombre (opcional)">
 
-<button onclick="guardar()">Guardar</button>
+<button id="guardarParticipante">Guardar</button>
 
 </div>
 
@@ -35,54 +35,52 @@
 
 <h2>🔐 Acceso Admin</h2>
 
-<input id="adminPass" type="password" placeholder="Clave admin">
+<input type="password" id="adminPass" placeholder="Clave admin">
 
-<button onclick="loginAdmin()">Entrar</button>
+<button id="loginAdmin">Entrar</button>
 
-<p id="modo">Modo 👀 Solo ver</p>
+<button id="borrarTodo">Borrar Todo</button>
+
+<p id="modoAdmin">Modo 👀 Usuario</p>
 
 </div>
 
 
-<!-- FASES ADMIN -->
-<div class="card" id="adminFases" style="display:none">
+<!-- FASES -->
+<div class="card adminOnly">
 
 <h2>⚙️ Fases activas</h2>
 
-<label>Cuartos <input type="checkbox" id="check-cuartos"></label>
-<label>Semifinal <input type="checkbox" id="check-semifinal"></label>
-<label>Final <input type="checkbox" id="check-final"></label>
-<label>Campeón <input type="checkbox" id="check-campeon"></label>
+<label><input type="checkbox" id="faseCuartos"> Cuartos</label>
+<label><input type="checkbox" id="faseSemi"> Semifinal</label>
+<label><input type="checkbox" id="faseFinal"> Final</label>
+<label><input type="checkbox" id="faseCampeon"> Campeón</label>
 
-<button onclick="guardarConfig()">Guardar Configuración</button>
+<button id="guardarFases">Guardar</button>
 
 </div>
 
 
 <!-- RESULTADOS -->
-<div class="card" id="adminResultados" style="display:none">
+<div class="card adminOnly">
 
-<h2>🏆 Resultados Oficiales</h2>
+<h2>🏆 Resultados</h2>
 
-<div id="res-cuartos"></div>
-<div id="res-semifinal"></div>
-<div id="res-final"></div>
-<div id="res-campeon"></div>
+<div id="resultadosEquipos"></div>
 
-<button onclick="guardarResultados()">Guardar Resultados</button>
+<button id="guardarResultados">Guardar Resultados</button>
 
 </div>
 
 
-<!-- TABLA PUNTOS -->
+<!-- EQUIPOS USUARIO -->
 <div class="card">
 
-<h2>📊 Sistema de Puntos</h2>
+<h2>🎯 Elegir Equipos</h2>
 
-<div>Cuartos = 1 punto</div>
-<div>Semifinal = 2 puntos</div>
-<div>Final = 3 puntos</div>
-<div>Campeón = 5 puntos</div>
+<div id="equiposContainer"></div>
+
+<button id="guardarEquipos">Guardar Elección</button>
 
 </div>
 
@@ -92,7 +90,7 @@
 
 <h2>👥 Participantes</h2>
 
-<div id="lista"></div>
+<div id="listaParticipantes"></div>
 
 </div>
 
@@ -107,7 +105,22 @@
 </div>
 
 
-<script src="script.js"></script>
+<!-- TABLA PUNTOS -->
+<div class="card">
+
+<h2>📊 Sistema de Puntos</h2>
+
+<ul>
+<li>Cuartos: 1 punto</li>
+<li>Semifinal: 2 puntos</li>
+<li>Final: 3 puntos</li>
+<li>Campeón: 5 puntos</li>
+</ul>
+
+</div>
+
+
+</div>
 
 </body>
 </html>
