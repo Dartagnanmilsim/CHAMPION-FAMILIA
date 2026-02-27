@@ -16,35 +16,19 @@
   <div class="card">
     <h2>🏆 Sistema de Puntuación</h2>
 
-    <div class="puntos-row">
-      <span>Cuartos de final</span>
-      <b>1 punto</b>
-    </div>
-
-    <div class="puntos-row">
-      <span>Semifinal</span>
-      <b>2 puntos</b>
-    </div>
-
-    <div class="puntos-row">
-      <span>Final</span>
-      <b>3 puntos</b>
-    </div>
-
-    <div class="puntos-row">
-      <span>Campeón</span>
-      <b>5 puntos</b>
-    </div>
+    <div class="puntos-row"><span>Cuartos</span><b>1 punto</b></div>
+    <div class="puntos-row"><span>Semifinal</span><b>2 puntos</b></div>
+    <div class="puntos-row"><span>Final</span><b>3 puntos</b></div>
+    <div class="puntos-row"><span>Campeón</span><b>5 puntos</b></div>
   </div>
 
   <!-- PARTICIPANTE -->
   <div class="card">
     <h2>📝 Participante</h2>
 
-    <input type="text" id="nombre" placeholder="Nombre del participante">
+    <input type="text" id="nombre" placeholder="Nombre">
 
-    <h3>Selecciona tu Top 8</h3>
-    <div id="equipos" class="equipos-grid"></div>
+    <div id="panelFasesParticipante"></div>
 
     <div class="center">
       <button class="btn green" onclick="guardar()">Guardar</button>
@@ -53,62 +37,40 @@
 
   <!-- ADMIN -->
   <div class="card">
-    <h2>🔐 Acceso Admin</h2>
+    <h2>🔐 Admin</h2>
 
-    <input type="password" id="adminPass" placeholder="Clave admin">
+    <input type="password" id="adminPass" placeholder="Clave">
 
     <div class="center">
       <button class="btn green" onclick="activarAdmin()">Entrar</button>
       <button class="btn red" onclick="borrarTodo()">Borrar Todo</button>
     </div>
 
-    <p id="modo">Modo 👀 Solo ver</p>
+    <p id="modo">Modo solo ver</p>
   </div>
 
-  <!-- CONFIGURACION -->
+  <!-- CONFIG -->
   <div class="card" id="panelConfig" style="display:none;">
     <h2>⚙️ Fases activas</h2>
 
-    <div class="fase-row">
-      <span>Cuartos</span>
-      <input type="checkbox" id="act-cuartos">
-    </div>
-
-    <div class="fase-row">
-      <span>Semifinal</span>
-      <input type="checkbox" id="act-semifinal">
-    </div>
-
-    <div class="fase-row">
-      <span>Final</span>
-      <input type="checkbox" id="act-final">
-    </div>
-
-    <div class="fase-row">
-      <span>Campeón</span>
-      <input type="checkbox" id="act-campeon">
-    </div>
+    <div class="fase-row"><span>Cuartos</span><input type="checkbox" id="act-cuartos"></div>
+    <div class="fase-row"><span>Semifinal</span><input type="checkbox" id="act-semifinal"></div>
+    <div class="fase-row"><span>Final</span><input type="checkbox" id="act-final"></div>
+    <div class="fase-row"><span>Campeón</span><input type="checkbox" id="act-campeon"></div>
 
     <div class="center">
-      <button class="btn green" onclick="guardarConfig()">Guardar Configuración</button>
+      <button class="btn green" onclick="guardarConfig()">Guardar</button>
     </div>
   </div>
 
   <!-- RESULTADOS -->
   <div class="card" id="panelResultados" style="display:none;">
-    <h2>🏆 Resultados Oficiales</h2>
+    <h2>🏆 Resultados</h2>
 
-    <h4>Cuartos</h4>
-    <div id="cuartos" class="equipos-grid"></div>
-
-    <h4>Semifinal</h4>
-    <div id="semifinal" class="equipos-grid"></div>
-
-    <h4>Final</h4>
-    <div id="final" class="equipos-grid"></div>
-
-    <h4>Campeón</h4>
-    <div id="campeon" class="equipos-grid"></div>
+    <h4>Cuartos</h4><div id="cuartos" class="equipos-grid"></div>
+    <h4>Semifinal</h4><div id="semifinal" class="equipos-grid"></div>
+    <h4>Final</h4><div id="final" class="equipos-grid"></div>
+    <h4>Campeón</h4><div id="campeon" class="equipos-grid"></div>
 
     <div class="center">
       <button class="btn green" onclick="guardarResultados()">Guardar Resultados</button>
@@ -119,12 +81,6 @@
   <div class="card">
     <h2>🏆 Ranking</h2>
     <div id="ranking"></div>
-  </div>
-
-  <!-- PARTICIPANTES -->
-  <div class="card">
-    <h2>👥 Participantes</h2>
-    <div id="lista"></div>
   </div>
 
 </div>
