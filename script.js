@@ -1,3 +1,4 @@
+// 🔥 CONFIG FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyDugdPoh8Hm0U6tcdKgd4AzXd9EWN4b4LY",
   authDomain: "champions-top8.firebaseapp.com",
@@ -44,7 +45,7 @@ equipos.forEach(nombre => {
 
 });
 
-// GUARDAR
+// GUARDAR PARTICIPANTE
 function guardar() {
 
   const nombre = document.getElementById("nombre").value.trim();
@@ -71,7 +72,7 @@ function guardar() {
   alert("Guardado correctamente");
 }
 
-// ESCUCHAR PARTICIPANTES
+// ESCUCHAR DATOS
 db.ref("participantes").on("value", snap => {
 
   const data = snap.val();
@@ -81,6 +82,7 @@ db.ref("participantes").on("value", snap => {
 
 });
 
+// RENDER LISTA
 function renderLista() {
 
   const lista = document.getElementById("lista");
@@ -116,7 +118,7 @@ function renderLista() {
 
 }
 
-// ADMIN
+// ACTIVAR ADMIN
 function activarAdmin() {
 
   const pass = document.getElementById("adminPass").value;
@@ -125,16 +127,20 @@ function activarAdmin() {
     adminActivo = true;
     document.getElementById("modo").innerText = "Modo 🔓 Administrador";
     alert("Admin activado");
-    renderLista(); // 🔥 refresca lista con botones
+    renderLista(); // 🔥 refresca para mostrar botones
   } else {
     alert("Clave incorrecta");
   }
 
 }
 
-// BORRAR UNO
+// BORRAR INDIVIDUAL
 function borrar(id) {
+
+  if (!confirm("¿Eliminar participante?")) return;
+
   db.ref("participantes/" + id).remove();
+
 }
 
 // BORRAR TODO
@@ -147,5 +153,8 @@ function borrarTodo() {
     return;
   }
 
+  if (!confirm("¿Borrar todos los registros?")) return;
+
   db.ref("participantes").remove();
+
 }
