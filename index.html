@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 <meta charset="UTF-8">
 <title>Champions Top 8</title>
@@ -17,10 +18,11 @@
 
 <h2>📝 Participante</h2>
 
-<select id="selectorNombre"></select>
-<input type="text" id="nombreNuevo" placeholder="Nuevo nombre">
+<input id="nombre" placeholder="Nombre">
 
-<button onclick="guardarParticipante()">Guardar</button>
+<div id="equiposContainer"></div>
+
+<button onclick="guardar()">Guardar</button>
 
 </div>
 
@@ -29,11 +31,12 @@
 
 <h2>🔐 Acceso Admin</h2>
 
-<input type="password" id="claveAdmin" placeholder="Clave admin">
-<button onclick="loginAdmin()">Entrar</button>
+<input id="clave" type="password" placeholder="Clave admin">
+
+<button onclick="login()">Entrar</button>
 <button onclick="borrarTodo()">Borrar Todo</button>
 
-<p id="modoAdmin">Modo 👀 Solo ver</p>
+<p id="modo">Modo 👀 Solo ver</p>
 
 </div>
 
@@ -42,10 +45,10 @@
 
 <h2>⚙️ Fases activas</h2>
 
-<label><input type="checkbox" id="faseCuartos"> Cuartos</label>
-<label><input type="checkbox" id="faseSemi"> Semifinal</label>
-<label><input type="checkbox" id="faseFinal"> Final</label>
-<label><input type="checkbox" id="faseCampeon"> Campeón</label>
+<label><input type="checkbox" id="cuartos"> Cuartos</label>
+<label><input type="checkbox" id="semi"> Semifinal</label>
+<label><input type="checkbox" id="final"> Final</label>
+<label><input type="checkbox" id="campeon"> Campeón</label>
 
 <button onclick="guardarFases()">Guardar</button>
 
@@ -56,7 +59,7 @@
 
 <h2>🏆 Resultados</h2>
 
-<div id="equiposResultados" class="gridEquipos"></div>
+<div id="resultadosEquipos"></div>
 
 <button onclick="guardarResultados()">Guardar Resultados</button>
 
@@ -67,10 +70,9 @@
 
 <h2>👥 Participantes</h2>
 
-<div id="listaParticipantes"></div>
+<div id="lista"></div>
 
 </div>
-
 
 <script src="script.js"></script>
 
