@@ -1,4 +1,4 @@
-// CONFIG FIREBASE (TU CONFIG)
+// 🔥 CONFIG FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyDugdPoh8Hm0U6tcdKgd4AzXd9EWN4b4LY",
   authDomain: "champions-top8.firebaseapp.com",
@@ -12,6 +12,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+console.log("Firebase conectado");
+
+// EQUIPOS
 const equipos = [
   "Real Madrid","Manchester City","Bayern","PSG",
   "Barcelona","Arsenal","Inter","Milan",
@@ -24,7 +27,7 @@ let datosGlobal = {};
 
 const contenedor = document.getElementById("equipos");
 
-// RENDER EQUIPOS
+// CREAR EQUIPOS
 equipos.forEach(nombre => {
 
   const div = document.createElement("div");
@@ -42,9 +45,10 @@ equipos.forEach(nombre => {
   };
 
   contenedor.appendChild(div);
+
 });
 
-// GUARDAR PARTICIPANTE
+// GUARDAR
 function guardar() {
 
   const nombre = document.getElementById("nombre").value.trim();
@@ -69,6 +73,7 @@ function guardar() {
   });
 
   alert("Guardado correctamente");
+
 }
 
 // ESCUCHAR PARTICIPANTES
@@ -105,7 +110,7 @@ db.ref("participantes").on("value", snap => {
 
 });
 
-// VER SELECCIÓN
+// VER ELECCIÓN
 function ver(id) {
 
   const cont = document.getElementById("detalle-" + id);
@@ -130,9 +135,10 @@ function activarAdmin() {
   } else {
     alert("Clave incorrecta");
   }
+
 }
 
-// BORRAR
+// BORRAR UNO
 function borrar(id) {
   db.ref("participantes/" + id).remove();
 }
@@ -148,4 +154,5 @@ function borrarTodo() {
   }
 
   db.ref("participantes").remove();
+
 }
