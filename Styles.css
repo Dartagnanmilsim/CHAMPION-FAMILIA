@@ -1,0 +1,44 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #0b1d3a;
+  color: white;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+}
+
+.card {
+  background: #132c57;
+  padding: 20px;
+  border-radius: 12px;
+  margin: 20px auto;
+  max-width: 600px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: none;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  background: #1e90ff;
+  color: white;
+  cursor: pointer;
+}
+
+.equipo {
+  display: block;
+  margin: 5px 0;
+}
+
+.admin {
+  background: #3a1b1b;
+}
