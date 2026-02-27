@@ -17,12 +17,12 @@ const equipos = [
 ];
 
 let adminActivo = false;
+let datosGlobal = {}; // guardar participantes en memoria
 
 const contenedor = document.getElementById("equipos");
 
 function renderEquipos() {
   equipos.forEach(nombre => {
-
     const div = document.createElement("div");
     div.className = "equipo";
 
@@ -62,30 +62,37 @@ function guardar() {
 
   db.ref("participantes").push({ nombre, top8 });
 
-  alert("Guardado");
+  alert("Guardado correctamente");
   location.reload();
 }
 
+// 🔥 ESCUCHAR PARTICIPANTES EN TIEMPO REAL
 function escuchar() {
   db.ref("participantes").on("value", snap => {
 
     const data = snap.val();
+    datosGlobal = data || {};
+
     const lista = document.getElementById("lista");
     lista.innerHTML = "";
 
-    if (!data) return;
+    if (!data) {
+      lista.innerHTML = "<p>No hay participantes aún</p>";
+      return;
+    }
 
     Object.keys(data).forEach(id => {
-
       const p = data[id];
 
       const div = document.createElement("div");
       div.className = "participante";
 
       div.innerHTML = `
-        <b>${p.nombre}</b><br>
-        ${p.top8.join(" • ")}
-        ${adminActivo ? `<br><button onclick="borrar('${id}')">Eliminar</button>` : ""}
+        <b>${p.nombre}</b>
+        <br>
+        <button onclick="ver('${id}')">Ver selección</button>
+        ${adminActivo ? `<button onclick="borrar('${id}')">Eliminar</button>` : ""}
+        <div id="detalle-${id}" style="margin-top:8px;"></div>
       `;
 
       lista.appendChild(div);
@@ -95,6 +102,21 @@ function escuchar() {
 
 escuchar();
 
+// 🔥 VER ELECCIÓN DE PARTICIPANTE
+function ver(id) {
+  const cont = document.getElementById("detalle-" + id);
+  const p = datosGlobal[id];
+
+  if (!p) return;
+
+  cont.innerHTML = `
+    <div style="background:#eee;padding:8px;border-radius:8px;">
+      ${p.top8.join(" • ")}
+    </div>
+  `;
+}
+
+// 🔐 ADMIN
 function activarAdmin() {
   const pass = document.getElementById("adminPass").value;
 
