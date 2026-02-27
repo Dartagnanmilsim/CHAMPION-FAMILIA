@@ -1,44 +1,83 @@
 body {
+  margin: 0;
   font-family: Arial, sans-serif;
-  background: #0b1d3a;
+  background: linear-gradient(135deg, #0b1d3a, #102b5c);
   color: white;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
   padding: 20px;
 }
 
-h1 {
+h1, h2, h3 {
   text-align: center;
 }
 
 .card {
-  background: #132c57;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
   padding: 20px;
-  border-radius: 12px;
-  margin: 20px auto;
-  max-width: 600px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
 }
 
 input {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 6px;
+  padding: 12px;
+  border-radius: 8px;
   border: none;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.center {
+  text-align: center;
 }
 
 button {
-  padding: 10px 20px;
+  background: #ffd700;
+  color: #000;
   border: none;
-  border-radius: 6px;
-  background: #1e90ff;
-  color: white;
+  padding: 12px 25px;
+  margin: 5px;
+  border-radius: 8px;
+  font-weight: bold;
   cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+.equipos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
 .equipo {
-  display: block;
-  margin: 5px 0;
+  background: rgba(255,255,255,0.15);
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.equipo input {
+  display: none;
+}
+
+.equipo.activo {
+  background: #ffd700;
+  color: black;
+  font-weight: bold;
 }
 
 .admin {
-  background: #3a1b1b;
+  background: rgba(255,0,0,0.15);
 }
