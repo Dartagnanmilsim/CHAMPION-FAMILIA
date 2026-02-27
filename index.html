@@ -40,7 +40,21 @@
     <p id="modo">Modo 👀 Solo ver</p>
   </div>
 
-  <!-- RESULTADOS ADMIN -->
+  <!-- CONFIGURACION FASES -->
+  <div class="card" id="panelConfig" style="display:none;">
+    <h2>⚙️ Fases activas</h2>
+
+    <label><input type="checkbox" id="act-cuartos"> Cuartos</label><br>
+    <label><input type="checkbox" id="act-semifinal"> Semifinal</label><br>
+    <label><input type="checkbox" id="act-final"> Final</label><br>
+    <label><input type="checkbox" id="act-campeon"> Campeón</label>
+
+    <div class="center">
+      <button class="btn green" onclick="guardarConfig()">Guardar Configuración</button>
+    </div>
+  </div>
+
+  <!-- RESULTADOS -->
   <div class="card" id="panelResultados" style="display:none;">
     <h2>🏆 Resultados Oficiales</h2>
 
@@ -61,6 +75,12 @@
     </div>
   </div>
 
+  <!-- RANKING -->
+  <div class="card">
+    <h2>🏆 Ranking</h2>
+    <div id="ranking"></div>
+  </div>
+
   <!-- PARTICIPANTES -->
   <div class="card">
     <h2>👥 Participantes</h2>
@@ -69,7 +89,6 @@
 
 </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
