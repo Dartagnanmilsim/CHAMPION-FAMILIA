@@ -1,73 +1,76 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #f3f4f6;
-  margin: 0;
-  padding: 20px;
+body{
+font-family: Arial, sans-serif;
+background:#f3f4f6;
+padding:20px;
 }
 
-h1 {
-  text-align: center;
+h1{
+text-align:center;
 }
 
-.card {
-  background: white;
-  padding: 20px;
-  border-radius: 18px;
-  margin: 20px auto;
-  max-width: 500px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+.card{
+background:white;
+padding:20px;
+border-radius:18px;
+margin:20px auto;
+max-width:500px;
+box-shadow:0 4px 12px rgba(0,0,0,0.1);
 }
 
-input {
-  width: 100%;
-  padding: 14px;
-  margin: 10px 0;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  font-size: 16px;
+input{
+width:100%;
+padding:14px;
+margin:10px 0;
+border-radius:12px;
+border:1px solid #ddd;
+font-size:16px;
 }
 
-button {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 12px;
-  background: #4CAF50;
-  color: white;
-  font-size: 16px;
-  margin-top: 10px;
-  cursor: pointer;
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+background:#4CAF50;
+color:white;
+font-size:16px;
+margin-top:10px;
+cursor:pointer;
 }
 
-button:hover {
-  background: #43a047;
+button:hover{
+background:#43a047;
 }
 
-.equipos {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+.equipos{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin-bottom:10px;
 }
 
-.equipos button {
-  background: #e5e7eb;
-  color: black;
+.equipo{
+background:#e5e7eb;
+padding:10px;
+border-radius:10px;
+text-align:center;
+cursor:pointer;
 }
 
-.equipos button.activo {
-  background: #4CAF50;
-  color: white;
+.equipo.activo{
+background:#4CAF50;
+color:white;
 }
 
-.participante {
-  background: #f1f1f1;
-  padding: 12px;
-  border-radius: 12px;
-  margin-top: 10px;
+.participante{
+background:#f1f1f1;
+padding:12px;
+border-radius:12px;
+margin-top:10px;
 }
 
-.participante button {
-  width: auto;
-  background: #e53935;
-  margin-top: 5px;
+.eliminar{
+background:#e53935;
+width:auto;
+margin-top:5px;
 }
