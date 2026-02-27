@@ -54,18 +54,15 @@ function guardar() {
   const checks = document.querySelectorAll(".equipo input:checked");
 
   if (checks.length !== 8) {
-    alert("Debes seleccionar exactamente 8 equipos");
+    alert("Debes seleccionar 8 equipos");
     return;
   }
 
   const top8 = Array.from(checks).map(c => c.value);
 
-  db.ref("participantes").push({
-    nombre,
-    top8
-  });
+  db.ref("participantes").push({ nombre, top8 });
 
-  alert("Guardado correctamente");
+  alert("Guardado");
   location.reload();
 }
 
@@ -83,7 +80,7 @@ function escuchar() {
       const p = data[id];
 
       const div = document.createElement("div");
-      div.className = "card";
+      div.className = "participante";
 
       div.innerHTML = `
         <b>${p.nombre}</b><br>
@@ -103,7 +100,7 @@ function activarAdmin() {
 
   if (pass === "1234") {
     adminActivo = true;
-    alert("Modo administrador activado");
+    document.getElementById("modo").innerText = "Modo 🔓 Administrador";
     escuchar();
   } else {
     alert("Clave incorrecta");
