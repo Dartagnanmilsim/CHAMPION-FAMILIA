@@ -57,13 +57,6 @@ text-align:center;
 cursor:pointer;
 }
 
-.equipo img{
-width:28px;
-height:28px;
-display:block;
-margin:0 auto 5px auto;
-}
-
 .equipo.activo{
 background:#4CAF50;
 color:white;
