@@ -38,35 +38,76 @@ const equipos = [
 
 // ================= VARIABLES =================
 
+let seleccion = [];
 let admin = false;
 let participantes = {};
-let resultados = [];
-let faseActiva = "cuartos";
 
 
-// ================= CONTROL FASE =================
+// ================= RENDER EQUIPOS =================
 
-function limitePorFase(){
+const contEquipos = document.getElementById("equiposContainer");
 
-if(faseActiva === "cuartos") return 8;
-if(faseActiva === "semifinal") return 4;
-if(faseActiva === "final") return 2;
-if(faseActiva === "campeon") return 1;
+equipos.forEach(eq=>{
 
-return 0;
+const div=document.createElement("div");
+div.className="equipo";
+div.innerText=eq;
+
+div.onclick=()=>{
+
+if(seleccion.includes(eq)){
+seleccion=seleccion.filter(e=>e!==eq);
+div.classList.remove("activo");
+}else{
+seleccion.push(eq);
+div.classList.add("activo");
+}
+
+};
+
+contEquipos.appendChild(div);
+
+});
+
+
+// ================= GUARDAR =================
+
+function guardar(){
+
+const nombre=document.getElementById("nombre").value.trim();
+
+if(!nombre){
+alert("Nombre requerido");
+return;
+}
+
+if(seleccion.length===0){
+alert("Selecciona equipos");
+return;
+}
+
+const id=nombre.replace(/\s/g,"_");
+
+db.ref("participantes/"+id).set({
+nombre,
+seleccion
+});
+
+alert("Guardado");
+
 }
 
 
-// ================= LOGIN ADMIN =================
+// ================= LOGIN =================
 
-function loginAdmin(){
+function login(){
 
-const clave = document.getElementById("claveAdmin").value;
+const clave=document.getElementById("clave").value;
 
-if(clave === "1234"){
-admin = true;
-document.getElementById("modoAdmin").innerText = "Modo 🔓 Administrador";
-renderParticipantes();
+if(clave==="1234"){
+admin=true;
+document.getElementById("modo").innerText="Modo 🔓 Administrador";
+render();
 }
 
 }
@@ -85,132 +126,39 @@ db.ref("participantes").remove();
 }
 
 
-// ================= GUARDAR PARTICIPANTE =================
-
-function guardarParticipante(){
-
-const select = document.getElementById("selectorNombre");
-const nuevo = document.getElementById("nombreNuevo").value.trim();
-
-let nombre = nuevo || select.value;
-
-if(!nombre) return;
-
-let id = nombre.replace(/\s/g,"_");
-
-if(participantes[id] && participantes[id][faseActiva]){
-alert("Esta persona ya registró esta fase");
-return;
-}
-
-db.ref("participantes/"+id+"/nombre").set(nombre);
-db.ref("participantes/"+id+"/fase").set(faseActiva);
-
-alert("Guardado");
-
-}
-
-
 // ================= ELIMINAR =================
 
-function eliminarParticipante(id){
+function eliminar(id){
 
 if(!admin) return;
 
-if(confirm("Eliminar participante?")){
 db.ref("participantes/"+id).remove();
-}
-
-}
-
-
-// ================= FASES ADMIN =================
-
-function guardarFases(){
-
-if(!admin) return;
-
-const fases = {
-cuartos: document.getElementById("faseCuartos").checked,
-semifinal: document.getElementById("faseSemi").checked,
-final: document.getElementById("faseFinal").checked,
-campeon: document.getElementById("faseCampeon").checked
-};
-
-db.ref("config/fases").set(fases);
-
-}
-
-
-// ================= RESULTADOS =================
-
-function renderResultados(){
-
-const cont = document.getElementById("equiposResultados");
-cont.innerHTML = "";
-
-equipos.forEach(eq => {
-
-const div = document.createElement("div");
-div.className = "equipoBtn";
-
-if(resultados.includes(eq)){
-div.classList.add("activo");
-}
-
-div.innerText = eq;
-
-div.onclick = () => {
-
-if(!admin) return;
-
-if(resultados.includes(eq)){
-resultados = resultados.filter(e=>e!==eq);
-}else{
-resultados.push(eq);
-}
-
-renderResultados();
-};
-
-cont.appendChild(div);
-
-});
-
-}
-
-
-function guardarResultados(){
-
-if(!admin) return;
-
-db.ref("resultados/"+faseActiva).set(resultados);
-
-alert("Resultados guardados");
 
 }
 
 
 // ================= RENDER PARTICIPANTES =================
 
-function renderParticipantes(){
+function render(){
 
-const cont = document.getElementById("listaParticipantes");
-cont.innerHTML = "";
+const lista=document.getElementById("lista");
+lista.innerHTML="";
 
 Object.keys(participantes).forEach(id=>{
 
-const p = participantes[id];
+const p=participantes[id];
 
-const div = document.createElement("div");
-div.className = "participante";
+const div=document.createElement("div");
+div.className="participante";
 
-div.innerHTML = `
+div.innerHTML=`
 <b>${p.nombre}</b>
-${admin ? `<button class="eliminar" onclick="eliminarParticipante('${id}')">Eliminar</button>` : ""}
+${admin?`<button class="eliminar" onclick="eliminar('${id}')">Eliminar</button>`:""}
+<br>
+${p.seleccion.join(" • ")}
 `;
 
-cont.appendChild(div);
+lista.appendChild(div);
 
 });
 
@@ -219,32 +167,9 @@ cont.appendChild(div);
 
 // ================= REALTIME =================
 
-db.ref("participantes").on("value", snap=>{
+db.ref("participantes").on("value",snap=>{
 
-participantes = snap.val() || {};
-renderParticipantes();
-
-});
-
-
-db.ref("config/fases").on("value", snap=>{
-
-const f = snap.val();
-if(!f) return;
-
-if(f.cuartos) faseActiva="cuartos";
-if(f.semifinal) faseActiva="semifinal";
-if(f.final) faseActiva="final";
-if(f.campeon) faseActiva="campeon";
+participantes=snap.val()||{};
+render();
 
 });
-
-
-db.ref("resultados").on("value", snap=>{
-renderResultados();
-});
-
-
-// ================= INIT =================
-
-renderResultados();
