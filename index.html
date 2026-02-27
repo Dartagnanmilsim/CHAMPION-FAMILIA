@@ -1,119 +1,106 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Champions Top 8</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<title>Champions Top 8</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
 <div class="container">
 
-  <h1>⚽ Champions Top 8</h1>
+<h1>⚽ Champions Top 8</h1>
 
-  <!-- PARTICIPANTE -->
-  <div class="card">
+<!-- PARTICIPANTE -->
+<div class="card">
 
-    <h2>📝 Participante</h2>
+<h2>📝 Participante</h2>
 
-    <div class="input-group">
-      <input type="text" id="nombre" placeholder="Nombre del participante">
-    </div>
+<input type="text" id="nombre" placeholder="Nombre del participante">
 
-    <div id="panelFasesParticipante"></div>
+<div id="panelFasesParticipante"></div>
 
-    <div class="center">
-      <button class="btn green" onclick="guardar()">Guardar</button>
-    </div>
+<button class="btn green" onclick="guardar()">Guardar</button>
 
-  </div>
+</div>
 
 
-  <!-- ADMIN -->
-  <div class="card">
+<!-- ADMIN -->
+<div class="card">
 
-    <h2>🔐 Acceso Admin</h2>
+<h2>🔐 Acceso Admin</h2>
 
-    <div class="input-group">
-      <input type="password" id="adminPass" placeholder="Clave administrador">
-    </div>
+<input type="password" id="adminPass" placeholder="Clave admin">
 
-    <div class="center">
-      <button class="btn green" onclick="activarAdmin()">Entrar</button>
-      <button class="btn red" onclick="borrarTodo()">Borrar Todo</button>
-    </div>
+<button class="btn green" onclick="activarAdmin()">Entrar</button>
+<button class="btn red" onclick="borrarTodo()">Borrar Todo</button>
 
-    <p id="modo">Modo 👀 Solo ver</p>
+<p id="modo">Modo 👀 Solo ver</p>
 
-  </div>
+</div>
 
 
-  <!-- CONFIG -->
-  <div class="card" id="panelConfig" style="display:none;">
+<!-- CONFIG -->
+<div class="card" id="panelConfig" style="display:none;">
 
-    <h2>⚙️ Fases activas</h2>
+<h2>⚙️ Fases activas</h2>
 
-    <div class="fase-row">
-      <span>Cuartos</span>
-      <input type="checkbox" id="act-cuartos">
-    </div>
+<div class="fase-row">
+<span>Cuartos</span>
+<input type="checkbox" id="act-cuartos">
+</div>
 
-    <div class="fase-row">
-      <span>Semifinal</span>
-      <input type="checkbox" id="act-semifinal">
-    </div>
+<div class="fase-row">
+<span>Semifinal</span>
+<input type="checkbox" id="act-semifinal">
+</div>
 
-    <div class="fase-row">
-      <span>Final</span>
-      <input type="checkbox" id="act-final">
-    </div>
+<div class="fase-row">
+<span>Final</span>
+<input type="checkbox" id="act-final">
+</div>
 
-    <div class="fase-row">
-      <span>Campeón</span>
-      <input type="checkbox" id="act-campeon">
-    </div>
+<div class="fase-row">
+<span>Campeón</span>
+<input type="checkbox" id="act-campeon">
+</div>
 
-    <div class="center">
-      <button class="btn green" onclick="guardarConfig()">Guardar Configuración</button>
-    </div>
+<button class="btn green" onclick="guardarConfig()">Guardar Configuración</button>
 
-  </div>
+</div>
 
 
-  <!-- RESULTADOS -->
-  <div class="card" id="panelResultados" style="display:none;">
+<!-- RESULTADOS -->
+<div class="card" id="panelResultados" style="display:none;">
 
-    <h2>🏆 Resultados Oficiales</h2>
+<h2>🏆 Resultados Oficiales</h2>
 
-    <h4>Cuartos</h4>
-    <div id="cuartos" class="equipos-grid"></div>
+<h4>Cuartos</h4>
+<div id="cuartos" class="equipos-grid"></div>
 
-    <h4>Semifinal</h4>
-    <div id="semifinal" class="equipos-grid"></div>
+<h4>Semifinal</h4>
+<div id="semifinal" class="equipos-grid"></div>
 
-    <h4>Final</h4>
-    <div id="final" class="equipos-grid"></div>
+<h4>Final</h4>
+<div id="final" class="equipos-grid"></div>
 
-    <h4>Campeón</h4>
-    <div id="campeon" class="equipos-grid"></div>
+<h4>Campeón</h4>
+<div id="campeon" class="equipos-grid"></div>
 
-    <div class="center">
-      <button class="btn green" onclick="guardarResultados()">Guardar Resultados</button>
-    </div>
+<button class="btn green" onclick="guardarResultados()">Guardar Resultados</button>
 
-  </div>
+</div>
 
 
-  <!-- RANKING -->
-  <div class="card">
+<!-- PARTICIPANTES -->
+<div class="card">
 
-    <h2>🏆 Ranking</h2>
-    <div id="ranking"></div>
+<h2>👥 Participantes</h2>
+<div id="lista"></div>
 
-  </div>
+</div>
 
 </div>
 
