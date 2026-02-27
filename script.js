@@ -1,3 +1,5 @@
+// FIREBASE
+
 const firebaseConfig = {
   apiKey: "AIzaSyDugdPoh8Hm0U6tcdKgd4AzXd9EWN4b4LY",
   authDomain: "champions-top8.firebaseapp.com",
@@ -7,6 +9,9 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+
+
+// DATA
 
 const equipos = [
 "Real Madrid","Manchester City","Bayern","PSG","Barcelona","Arsenal",
@@ -26,34 +31,31 @@ const fases = Object.keys(limites);
 let adminActivo=false;
 let config={};
 let participantes={};
-let resultados={};
 
 
-// ================= ADMIN
+// ADMIN
 
 function activarAdmin(){
 
-  const pass=document.getElementById("adminPass").value;
-
-  if(pass==="1234"){
+  if(document.getElementById("adminPass").value==="1234"){
 
     adminActivo=true;
 
-    document.getElementById("panelResultados").style.display="block";
     document.getElementById("panelConfig").style.display="block";
+    document.getElementById("panelResultados").style.display="block";
 
     crearEquiposResultados();
 
     document.getElementById("modo").innerText="Modo 🔓 Administrador";
 
-  }else{
-    alert("Clave incorrecta");
+    renderLista();
+
   }
 
 }
 
 
-// ================= PANEL PARTICIPANTE
+// PANEL PARTICIPANTE
 
 function renderPanelParticipante(){
 
@@ -97,13 +99,13 @@ function renderPanelParticipante(){
 }
 
 
-// ================= RESULTADOS ADMIN
+// RESULTADOS ADMIN
 
 function crearEquiposResultados(){
 
-  fases.forEach(fase=>{
+  fases.forEach(f=>{
 
-    const cont=document.getElementById(fase);
+    const cont=document.getElementById(f);
     if(!cont) return;
 
     cont.innerHTML="";
@@ -139,12 +141,11 @@ function guardarResultados(){
   });
 
   db.ref("resultados").set(data);
-  alert("Resultados guardados");
 
 }
 
 
-// ================= CONFIG
+// CONFIG
 
 function guardarConfig(){
 
@@ -160,12 +161,11 @@ function guardarConfig(){
 }
 
 
-// ================= GUARDAR PARTICIPANTE
+// GUARDAR PARTICIPANTE
 
 function guardar(){
 
-  const nombre=document.getElementById("nombre").value;
-
+  const nombre=document.getElementById("nombre").value.trim();
   if(!nombre) return alert("Nombre");
 
   const existe=Object.values(participantes)
@@ -173,26 +173,78 @@ function guardar(){
 
   if(existe) return alert("Nombre ya existe");
 
-  db.ref("participantes").push({nombre});
+  const picks={};
 
-}
+  fases.forEach(f=>{
 
+    const cont=document.getElementById(`pick-${f}`);
+    if(!cont) return;
 
-// ================= RANKING
+    const activos=cont.querySelectorAll(".activo");
+    picks[f]=Array.from(activos).map(d=>d.innerText);
 
-function renderRanking(){
+  });
 
-  const ranking=document.getElementById("ranking");
-  ranking.innerHTML="";
-
-  Object.values(participantes).forEach(p=>{
-    ranking.innerHTML+=`<div>${p.nombre}</div>`;
+  db.ref("participantes").push({
+    nombre,
+    picks
   });
 
 }
 
 
-// ================= LISTENERS
+// ELIMINAR
+
+function eliminar(id){
+
+  if(!adminActivo) return;
+
+  db.ref("participantes/"+id).remove();
+
+}
+
+function borrarTodo(){
+
+  if(!adminActivo) return alert("Solo admin");
+
+  db.ref("participantes").remove();
+
+}
+
+
+// RENDER LISTA
+
+function renderLista(){
+
+  const cont=document.getElementById("lista");
+  cont.innerHTML="";
+
+  Object.entries(participantes).forEach(([id,p])=>{
+
+    let picksHtml="";
+
+    if(p.picks){
+
+      Object.entries(p.picks).forEach(([fase,lista])=>{
+        picksHtml+=`<div><b>${fase}:</b> ${lista.join(", ")}</div>`;
+      });
+
+    }
+
+    cont.innerHTML+=`
+      <div class="participante">
+        <b>${p.nombre}</b>
+        ${picksHtml}
+        ${adminActivo ? `<button onclick="eliminar('${id}')">Eliminar</button>` : ""}
+      </div>
+    `;
+
+  });
+
+}
+
+
+// LISTENERS
 
 db.ref("configuracion").on("value",snap=>{
   config=snap.val()||{};
@@ -201,9 +253,5 @@ db.ref("configuracion").on("value",snap=>{
 
 db.ref("participantes").on("value",snap=>{
   participantes=snap.val()||{};
-  renderRanking();
-});
-
-db.ref("resultados").on("value",snap=>{
-  resultados=snap.val()||{};
+  renderLista();
 });
