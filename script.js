@@ -14,32 +14,50 @@ const equipos = [
 "Porto","Leipzig","Juventus","Chelsea"
 ];
 
+const fases = ["cuartos","semifinal","final","campeon"];
+const pesos = { cuartos:1, semifinal:2, final:3, campeon:5 };
+
 let adminActivo=false;
 let participantes={};
+let resultados={};
+let config={};
 
 // CREAR EQUIPOS
-const cont=document.getElementById("equipos");
+function crearEquipos(containerId){
 
-equipos.forEach(eq=>{
-  const div=document.createElement("div");
-  div.className="equipo";
-  div.innerHTML=`<input type="checkbox" value="${eq}">${eq}`;
-  div.onclick=()=>{
-    const c=div.querySelector("input");
-    c.checked=!c.checked;
-    div.classList.toggle("activo");
-  };
-  cont.appendChild(div);
-});
+  const cont=document.getElementById(containerId);
+  if(!cont) return;
 
-// GUARDAR
+  equipos.forEach(eq=>{
+    const div=document.createElement("div");
+    div.className="equipo";
+
+    div.innerHTML=`<input type="checkbox" value="${eq}">${eq}`;
+
+    div.onclick=()=>{
+      const c=div.querySelector("input");
+      c.checked=!c.checked;
+      div.classList.toggle("activo");
+    };
+
+    cont.appendChild(div);
+  });
+}
+
+// PARTICIPANTE
+crearEquipos("equipos");
+
+// RESULTADOS
+fases.forEach(f=>crearEquipos(f));
+
+// GUARDAR PARTICIPANTE
 function guardar(){
 
   const nombre=document.getElementById("nombre").value.trim();
   if(!nombre) return alert("Ingresa nombre");
 
   const existe=Object.values(participantes)
-  .some(p=>p.nombre.toLowerCase()===nombre.toLowerCase());
+    .some(p=>p.nombre.toLowerCase()===nombre.toLowerCase());
 
   if(existe) return alert("Nombre ya existe");
 
@@ -67,6 +85,32 @@ function activarAdmin(){
   }
 }
 
+// CONFIG
+function guardarConfig(){
+
+  config={
+    cuartos:document.getElementById("act-cuartos").checked,
+    semifinal:document.getElementById("act-semifinal").checked,
+    final:document.getElementById("act-final").checked,
+    campeon:document.getElementById("act-campeon").checked
+  };
+
+  db.ref("configuracion").set(config);
+}
+
+// RESULTADOS
+function guardarResultados(){
+
+  const data={};
+
+  fases.forEach(f=>{
+    const checks=document.querySelectorAll(`#${f} input:checked`);
+    data[f]=Array.from(checks).map(c=>c.value);
+  });
+
+  db.ref("resultados").set(data);
+}
+
 // BORRAR
 function borrar(id){
   db.ref("participantes/"+id).remove();
@@ -76,9 +120,39 @@ function borrarTodo(){
   db.ref("participantes").remove();
 }
 
-// LISTENER
+// CALCULAR PUNTOS
+function calcularPuntos(top8){
+
+  let pts=0;
+
+  fases.forEach(f=>{
+
+    if(!config[f]) return;
+
+    const lista=resultados[f]||[];
+
+    lista.forEach(eq=>{
+      if(top8.includes(eq)) pts+=pesos[f];
+    });
+
+  });
+
+  return pts;
+}
+
+// LISTENERS
 db.ref("participantes").on("value",snap=>{
   participantes=snap.val()||{};
+  render();
+});
+
+db.ref("resultados").on("value",snap=>{
+  resultados=snap.val()||{};
+  render();
+});
+
+db.ref("configuracion").on("value",snap=>{
+  config=snap.val()||{};
   render();
 });
 
@@ -86,11 +160,19 @@ db.ref("participantes").on("value",snap=>{
 function render(){
 
   const lista=document.getElementById("lista");
+  const ranking=document.getElementById("ranking");
+
   lista.innerHTML="";
+  ranking.innerHTML="";
+
+  const arr=[];
 
   Object.keys(participantes).forEach(id=>{
 
     const p=participantes[id];
+    const puntos=calcularPuntos(p.top8);
+
+    arr.push({nombre:p.nombre,puntos});
 
     let chips="";
     p.top8.forEach(eq=>{
@@ -101,13 +183,22 @@ function render(){
     div.className="participante";
 
     div.innerHTML=`
-      <div class="nombre">${p.nombre}</div>
-      <div class="chips">${chips}</div>
-      ${adminActivo ? `<button class="btn red" onclick="borrar('${id}')">Eliminar</button>` : ``}
+      <div><b>${p.nombre}</b></div>
+      <div>⭐ ${puntos} puntos</div>
+      <div>${chips}</div>
+      ${adminActivo?`<button class="btn red" onclick="borrar('${id}')">Eliminar</button>`:""}
     `;
 
     lista.appendChild(div);
 
+  });
+
+  arr.sort((a,b)=>b.puntos-a.puntos);
+
+  arr.forEach((r,i)=>{
+    ranking.innerHTML+=`
+      <div>${i+1}. ${r.nombre} — ${r.puntos} pts</div>
+    `;
   });
 
 }
