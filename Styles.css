@@ -1,34 +1,36 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #0b1d3a, #102b5c);
-  color: white;
+  background: #f2f2f2;
 }
 
 .container {
-  max-width: 900px;
+  max-width: 600px;
   margin: auto;
   padding: 20px;
 }
 
-h1, h2, h3 {
+h1 {
   text-align: center;
 }
 
 .card {
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
+  background: white;
   padding: 20px;
+  border-radius: 20px;
   margin-bottom: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+h2, h3 {
+  margin-top: 0;
 }
 
 input {
   width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
   margin-bottom: 15px;
   font-size: 16px;
 }
@@ -37,20 +39,22 @@ input {
   text-align: center;
 }
 
-button {
-  background: #ffd700;
-  color: #000;
+.btn {
+  width: 80%;
+  padding: 15px;
   border: none;
-  padding: 12px 25px;
-  margin: 5px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
+  border-radius: 12px;
+  font-size: 16px;
+  color: white;
+  margin: 5px 0;
 }
 
-button:hover {
-  transform: scale(1.05);
+.green {
+  background: #4CAF50;
+}
+
+.red {
+  background: #E74C3C;
 }
 
 .equipos-grid {
@@ -61,23 +65,27 @@ button:hover {
 }
 
 .equipo {
-  background: rgba(255,255,255,0.15);
-  padding: 10px;
-  border-radius: 8px;
-  cursor: pointer;
+  padding: 12px;
+  border-radius: 12px;
+  background: #eee;
   text-align: center;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.equipo.activo {
+  background: #4CAF50;
+  color: white;
+  font-weight: bold;
 }
 
 .equipo input {
   display: none;
 }
 
-.equipo.activo {
-  background: #ffd700;
-  color: black;
-  font-weight: bold;
-}
-
-.admin {
-  background: rgba(255,0,0,0.15);
+.participante {
+  background: #fafafa;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
 }
