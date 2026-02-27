@@ -1,42 +1,57 @@
-// ⚠️ CONFIGURA TU FIREBASE AQUÍ
+// 🔥 CONFIGURAR FIREBASE
 const firebaseConfig = {
   apiKey: "API_KEY",
   authDomain: "PROJECT.firebaseapp.com",
   databaseURL: "https://PROJECT-default-rtdb.firebaseio.com",
   projectId: "PROJECT",
-  storageBucket: "PROJECT.appspot.com",
-  messagingSenderId: "ID",
-  appId: "APP_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 const equipos = [
-  "Real Madrid","Barcelona","Manchester City","PSG",
-  "Bayern","Arsenal","Inter","Milan",
+  "Real Madrid","Manchester City","Bayern","PSG",
+  "Barcelona","Arsenal","Inter","Milan",
   "Atlético","Dortmund","Napoli","Benfica",
-  "Porto","RB Leipzig","Juventus","Chelsea"
+  "Porto","Leipzig","Juventus","Chelsea"
 ];
 
-const equiposDiv = document.getElementById("equipos");
+let adminActivo = false;
 
-// Render equipos
+const contenedor = document.getElementById("equipos");
+
 function renderEquipos() {
-  equipos.forEach(e => {
-    const label = document.createElement("label");
-    label.className = "equipo";
-    label.innerHTML = `<input type="checkbox" value="${e}"> ${e}`;
-    equiposDiv.appendChild(label);
+  equipos.forEach(nombre => {
+
+    const div = document.createElement("div");
+    div.className = "equipo";
+
+    div.innerHTML = `
+      <input type="checkbox" value="${nombre}">
+      ${nombre}
+    `;
+
+    div.onclick = () => {
+      const check = div.querySelector("input");
+      check.checked = !check.checked;
+      div.classList.toggle("activo");
+    };
+
+    contenedor.appendChild(div);
   });
 }
 
 renderEquipos();
 
-// Guardar participante
 function guardar() {
-  const nombre = document.getElementById("nombre").value;
-  const checks = document.querySelectorAll("input[type=checkbox]:checked");
+  const nombre = document.getElementById("nombre").value.trim();
+
+  if (!nombre) {
+    alert("Ingresa tu nombre");
+    return;
+  }
+
+  const checks = document.querySelectorAll(".equipo input:checked");
 
   if (checks.length !== 8) {
     alert("Debes seleccionar exactamente 8 equipos");
@@ -50,43 +65,62 @@ function guardar() {
     top8
   });
 
-  alert("Guardado");
+  alert("Guardado correctamente");
+  location.reload();
 }
 
-// Escuchar cambios en tiempo real
 function escuchar() {
-  db.ref("participantes").on("value", snapshot => {
-    const data = snapshot.val();
+  db.ref("participantes").on("value", snap => {
+
+    const data = snap.val();
     const lista = document.getElementById("lista");
     lista.innerHTML = "";
 
-    for (let id in data) {
+    if (!data) return;
+
+    Object.keys(data).forEach(id => {
+
       const p = data[id];
 
       const div = document.createElement("div");
+      div.className = "card";
+
       div.innerHTML = `
         <b>${p.nombre}</b><br>
-        ${p.top8.join(", ")}
-        <br>
-        <button onclick="borrar('${id}')">Borrar</button>
-        <hr>
+        ${p.top8.join(" • ")}
+        ${adminActivo ? `<br><button onclick="borrar('${id}')">Eliminar</button>` : ""}
       `;
 
       lista.appendChild(div);
-    }
+    });
   });
 }
 
 escuchar();
 
-// Borrar (admin)
-function borrar(id) {
+function activarAdmin() {
   const pass = document.getElementById("adminPass").value;
 
-  if (pass !== "admin123") {
+  if (pass === "1234") {
+    adminActivo = true;
+    alert("Modo administrador activado");
+    escuchar();
+  } else {
+    alert("Clave incorrecta");
+  }
+}
+
+function borrar(id) {
+  db.ref("participantes/" + id).remove();
+}
+
+function borrarTodo() {
+  const pass = document.getElementById("adminPass").value;
+
+  if (pass !== "1234") {
     alert("Clave incorrecta");
     return;
   }
 
-  db.ref("participantes/" + id).remove();
+  db.ref("participantes").remove();
 }
