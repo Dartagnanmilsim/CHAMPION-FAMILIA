@@ -40,6 +40,27 @@
     <p id="modo">Modo 👀 Solo ver</p>
   </div>
 
+  <!-- RESULTADOS ADMIN -->
+  <div class="card" id="panelResultados" style="display:none;">
+    <h2>🏆 Resultados Oficiales</h2>
+
+    <h4>Cuartos</h4>
+    <div id="cuartos" class="equipos-grid"></div>
+
+    <h4>Semifinal</h4>
+    <div id="semifinal" class="equipos-grid"></div>
+
+    <h4>Final</h4>
+    <div id="final" class="equipos-grid"></div>
+
+    <h4>Campeón</h4>
+    <div id="campeon" class="equipos-grid"></div>
+
+    <div class="center">
+      <button class="btn green" onclick="guardarResultados()">Guardar Resultados</button>
+    </div>
+  </div>
+
   <!-- PARTICIPANTES -->
   <div class="card">
     <h2>👥 Participantes</h2>
@@ -48,7 +69,6 @@
 
 </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
