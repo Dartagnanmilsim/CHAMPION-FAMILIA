@@ -1,356 +1,208 @@
-// ================= FIREBASE =================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+getDatabase,
+ref,
+set,
+push,
+onValue,
+remove,
+update
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
 apiKey: "AIzaSyDugdPoh8Hm0U6tcdKgd4AzXd9EWN4b4LY",
 authDomain: "champions-top8.firebaseapp.com",
 databaseURL: "https://champions-top8-default-rtdb.firebaseio.com",
-projectId: "champions-top8"
+projectId: "champions-top8",
+storageBucket: "champions-top8.firebasestorage.app",
+messagingSenderId: "471933898603",
+appId: "1:471933898603:web:7146cb6ea65bd7bf9d062e"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
+const ADMIN_PASS = "1234";
 
-// ================= DATA =================
+let admin = false;
+let participanteActual = "";
+let seleccionActual = [];
+
+/* ================= EQUIPOS CHAMPIONS 2026 ================= */
 
 const equipos = [
-"Real Madrid","Manchester City","Bayern","PSG",
-"Barcelona","Arsenal","Inter","Milan",
-"Atlético","Dortmund","Napoli","Benfica",
-"Porto","Leipzig","Juventus","Chelsea"
+"PSG",
+"Chelsea",
+"Galatasaray",
+"Liverpool",
+"Real Madrid",
+"Manchester City",
+"Atalanta",
+"Bayern Múnich",
+"Newcastle",
+"Barcelona",
+"Atlético Madrid",
+"Tottenham",
+"Bodø/Glimt",
+"Sporting CP",
+"Bayer Leverkusen",
+"Arsenal"
 ];
 
-const limites = {
-cuartos:8,
-semifinal:4,
-final:2,
-campeon:1
+/* ================= UI EQUIPOS ================= */
+
+const contEquipos = document.getElementById("equiposContainer");
+
+equipos.forEach(eq=>{
+const btn=document.createElement("button");
+btn.textContent=eq;
+btn.className="equipoBtn";
+
+btn.onclick=()=>{
+if(seleccionActual.includes(eq)){
+seleccionActual=seleccionActual.filter(e=>e!==eq);
+btn.classList.remove("equipoActivo");
+}else{
+seleccionActual.push(eq);
+btn.classList.add("equipoActivo");
+}
 };
 
-const puntosFase = {
-cuartos:1,
-semifinal:2,
-final:3,
-campeon:5
+contEquipos.appendChild(btn);
+});
+
+/* ================= PARTICIPANTE ================= */
+
+const participanteSelect = document.getElementById("participanteSelect");
+const nuevoNombre = document.getElementById("nuevoNombre");
+
+document.getElementById("guardarParticipante").onclick=()=>{
+
+let nombre = nuevoNombre.value || participanteSelect.value;
+
+if(!nombre) return alert("Nombre requerido");
+
+participanteActual = nombre;
+
+nuevoNombre.value="";
 };
 
-let admin=false;
-let config={};
-let resultados={};
-let participantes={};
+/* ================= GUARDAR EQUIPOS ================= */
 
+document.getElementById("guardarEquipos").onclick=()=>{
 
-// ================= ADMIN =================
+if(!participanteActual) return alert("Selecciona participante");
 
-function loginAdmin(){
+const userRef = ref(db,"participantes/"+participanteActual);
+
+set(userRef,{
+equipos: seleccionActual,
+puntos:0
+});
+
+alert("Guardado");
+};
+
+/* ================= ADMIN ================= */
+
+document.getElementById("loginAdmin").onclick=()=>{
 
 const pass=document.getElementById("adminPass").value;
 
-if(pass==="1234"){
+if(pass===ADMIN_PASS){
 
 admin=true;
 
-document.getElementById("modo").innerText="Modo 🔓 Administrador";
-document.getElementById("adminFases").style.display="block";
-document.getElementById("adminResultados").style.display="block";
+document.querySelectorAll(".adminOnly").forEach(e=>{
+e.style.display="block";
+});
 
-renderResultadosAdmin();
-renderLista();
+document.getElementById("modoAdmin").innerText="Modo 🔓 Admin";
 
 }else{
-
 alert("Clave incorrecta");
-
 }
-
-}
-
-
-// ================= ELIMINAR PARTICIPANTE =================
-
-function eliminarParticipante(id){
-
-if(!admin){
-alert("Solo administrador");
-return;
-}
-
-if(!confirm("¿Eliminar participante?")) return;
-
-db.ref("participantes/"+id).remove();
-
-}
-
-
-// ================= PANEL PARTICIPANTE =================
-
-function renderPanel(){
-
-const panel=document.getElementById("panelFases");
-panel.innerHTML="";
-
-Object.keys(limites).forEach(fase=>{
-
-if(!config[fase]) return;
-
-panel.innerHTML+=`
-<h3>${fase.toUpperCase()} (${limites[fase]})</h3>
-<div class="equipos" id="pick-${fase}"></div>
-`;
-
-const cont=document.getElementById(`pick-${fase}`);
-
-equipos.forEach(eq=>{
-
-const div=document.createElement("div");
-div.className="equipo";
-div.innerText=eq;
-
-div.onclick=()=>{
-
-const activos=cont.querySelectorAll(".activo");
-
-if(!div.classList.contains("activo") && activos.length>=limites[fase]){
-alert("Límite alcanzado");
-return;
-}
-
-div.classList.toggle("activo");
 
 };
 
-cont.appendChild(div);
+/* ================= BORRAR TODO ================= */
 
-});
-
-});
-
-}
-
-
-// ================= GUARDAR =================
-
-function guardar(){
-
-const nombre=document.getElementById("nombre").value.trim();
-if(!nombre) return alert("Ingrese nombre");
-
-const picks={};
-
-Object.keys(limites).forEach(fase=>{
-
-const cont=document.getElementById(`pick-${fase}`);
-if(!cont) return;
-
-const activos=cont.querySelectorAll(".activo");
-const lista=Array.from(activos).map(e=>e.innerText);
-
-if(lista.length>0) picks[fase]=lista;
-
-});
-
-
-let idExistente=null;
-
-Object.keys(participantes).forEach(id=>{
-
-if(participantes[id].nombre.toLowerCase()===nombre.toLowerCase())
-idExistente=id;
-
-});
-
-
-if(idExistente){
-
-db.ref("participantes/"+idExistente+"/picks").update(picks);
-
-}else{
-
-db.ref("participantes").push({
-nombre,
-picks
-});
-
-}
-
-}
-
-
-// ================= CONFIG =================
-
-function guardarConfig(){
-
-config={
-cuartos:document.getElementById("check-cuartos").checked,
-semifinal:document.getElementById("check-semifinal").checked,
-final:document.getElementById("check-final").checked,
-campeon:document.getElementById("check-campeon").checked
-};
-
-db.ref("config").set(config);
-
-}
-
-
-// ================= RESULTADOS ADMIN =================
-
-function renderResultadosAdmin(){
-
-Object.keys(limites).forEach(fase=>{
-
-const cont=document.getElementById("res-"+fase);
-cont.innerHTML=`<h4>${fase}</h4><div class="equipos" id="res-grid-${fase}"></div>`;
-
-const grid=document.getElementById(`res-grid-${fase}`);
-
-equipos.forEach(eq=>{
-
-const div=document.createElement("div");
-div.className="equipo";
-div.innerText=eq;
-
-div.onclick=()=>{
+document.getElementById("borrarTodo").onclick=()=>{
 
 if(!admin) return;
 
-div.classList.toggle("activo");
+remove(ref(db,"participantes"));
 
 };
 
-grid.appendChild(div);
+/* ================= PARTICIPANTES LISTA ================= */
 
-});
+const listaDiv = document.getElementById("listaParticipantes");
 
-});
+onValue(ref(db,"participantes"),snap=>{
 
-}
+listaDiv.innerHTML="";
+participanteSelect.innerHTML="<option value=''>Seleccionar</option>";
 
+if(!snap.exists()) return;
 
-function guardarResultados(){
+snap.forEach(child=>{
 
-const data={};
+const nombre=child.key;
+const data=child.val();
 
-Object.keys(limites).forEach(fase=>{
+participanteSelect.innerHTML+=`<option>${nombre}</option>`;
 
-const activos=document.querySelectorAll(`#res-grid-${fase} .activo`);
-data[fase]=Array.from(activos).map(e=>e.innerText);
+const div=document.createElement("div");
+div.className="card";
 
-});
-
-db.ref("resultados").set(data);
-
-}
-
-
-// ================= CALCULAR PUNTOS =================
-
-function calcularPuntos(picks){
-
-let total=0;
-
-Object.keys(picks||{}).forEach(fase=>{
-
-if(!resultados[fase]) return;
-
-picks[fase].forEach(eq=>{
-
-if(resultados[fase].includes(eq))
-total+=puntosFase[fase];
-
-});
-
-});
-
-return total;
-
-}
-
-
-// ================= LISTA =================
-
-function renderLista(){
-
-const cont=document.getElementById("lista");
-cont.innerHTML="";
-
-Object.keys(participantes).forEach(id=>{
-
-const p=participantes[id];
-
-let picksHTML="";
-
-Object.keys(p.picks||{}).forEach(fase=>{
-
-picksHTML+=`<div><b>${fase}</b>: ${p.picks[fase].join(" • ")}</div>`;
-
-});
-
-const puntos=calcularPuntos(p.picks);
-
-cont.innerHTML+=`
-<div class="participante">
-<b>${p.nombre}</b> — ${puntos} pts
-
-${admin ? `
-<button class="eliminar" onclick="eliminarParticipante('${id}')">
-Eliminar
-</button>
-` : ""}
-
-${picksHTML}
-</div>
+div.innerHTML=`
+<b>${nombre}</b>
+<br>
+${data.equipos ? data.equipos.join(", ") : ""}
+${admin ? `<button onclick="eliminarUsuario('${nombre}')">Eliminar</button>`:""}
 `;
 
+listaDiv.appendChild(div);
+
 });
 
-renderRanking();
+});
 
-}
+/* ================= ELIMINAR ================= */
 
-
-// ================= RANKING =================
-
-function renderRanking(){
-
-const cont=document.getElementById("ranking");
-
-let arr=Object.keys(participantes).map(id=>{
-
-const p=participantes[id];
-
-return{
-nombre:p.nombre,
-puntos:calcularPuntos(p.picks)
+window.eliminarUsuario=(nombre)=>{
+if(!admin) return;
+remove(ref(db,"participantes/"+nombre));
 };
 
+/* ================= RANKING ================= */
+
+const rankingDiv=document.getElementById("ranking");
+
+onValue(ref(db,"participantes"),snap=>{
+
+if(!snap.exists()) return;
+
+let arr=[];
+
+snap.forEach(child=>{
+arr.push({
+nombre:child.key,
+puntos:child.val().puntos||0
+});
 });
 
 arr.sort((a,b)=>b.puntos-a.puntos);
 
-cont.innerHTML="";
+rankingDiv.innerHTML="";
 
 arr.forEach((p,i)=>{
-
-cont.innerHTML+=`<div>${i+1}. ${p.nombre} — ${p.puntos} pts</div>`;
-
+rankingDiv.innerHTML+=`
+<div>
+${i+1}. ${p.nombre} — ${p.puntos} pts
+</div>
+`;
 });
 
-}
-
-
-// ================= FIREBASE =================
-
-db.ref("config").on("value",snap=>{
-config=snap.val()||{};
-renderPanel();
-});
-
-db.ref("resultados").on("value",snap=>{
-resultados=snap.val()||{};
-renderLista();
-});
-
-db.ref("participantes").on("value",snap=>{
-participantes=snap.val()||{};
-renderLista();
 });
