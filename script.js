@@ -11,7 +11,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 
-// ================= EQUIPOS 2026 =================
+// ================= DATA =================
 
 const equipos = [
 "Paris","Chelsea",
@@ -23,9 +23,6 @@ const equipos = [
 "Bodø/Glimt","Sporting CP",
 "Bayer Leverkusen","Arsenal"
 ];
-
-
-// ================= LIMITES =================
 
 const limites = {
 cuartos:8,
@@ -73,6 +70,39 @@ alert("Clave incorrecta");
 }
 
 
+// ================= SELECT NOMBRES =================
+
+function cargarSelectNombres(){
+
+const select=document.getElementById("selectNombre");
+
+select.innerHTML=`<option value="">Nuevo participante</option>`;
+
+Object.keys(participantes).forEach(id=>{
+
+const p=participantes[id];
+
+select.innerHTML+=`
+<option value="${p.nombre}">
+${p.nombre}
+</option>
+`;
+
+});
+
+}
+
+document.getElementById("selectNombre").addEventListener("change",function(){
+
+const val=this.value;
+
+if(val){
+document.getElementById("nombre").value=val;
+}
+
+});
+
+
 // ================= ELIMINAR =================
 
 function eliminarParticipante(id){
@@ -89,7 +119,7 @@ db.ref("participantes/"+id).remove();
 }
 
 
-// ================= PANEL =================
+// ================= PANEL PARTICIPANTE =================
 
 function renderPanel(){
 
@@ -156,7 +186,6 @@ if(lista.length>0) picks[fase]=lista;
 
 });
 
-
 let idExistente=null;
 
 Object.keys(participantes).forEach(id=>{
@@ -165,7 +194,6 @@ if(participantes[id].nombre.toLowerCase()===nombre.toLowerCase())
 idExistente=id;
 
 });
-
 
 if(idExistente){
 
@@ -304,14 +332,15 @@ const p=participantes[id];
 let picksHTML="";
 
 Object.keys(p.picks||{}).forEach(fase=>{
+
 picksHTML+=`<div><b>${fase}</b>: ${p.picks[fase].join(" • ")}</div>`;
+
 });
 
 const puntos=calcularPuntos(p.picks);
 
 cont.innerHTML+=`
 <div class="participante">
-
 <b>${p.nombre}</b> — ${puntos} pts
 
 ${admin ? `
@@ -321,7 +350,6 @@ Eliminar
 ` : ""}
 
 ${picksHTML}
-
 </div>
 `;
 
@@ -354,7 +382,9 @@ arr.sort((a,b)=>b.puntos-a.puntos);
 cont.innerHTML="";
 
 arr.forEach((p,i)=>{
+
 cont.innerHTML+=`<div>${i+1}. ${p.nombre} — ${p.puntos} pts</div>`;
+
 });
 
 }
@@ -375,4 +405,5 @@ renderLista();
 db.ref("participantes").on("value",snap=>{
 participantes=snap.val()||{};
 renderLista();
+cargarSelectNombres();
 });
