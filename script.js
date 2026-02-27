@@ -11,7 +11,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 
-// ================= DATA =================
+// ================= EQUIPOS 2026 =================
 
 const equipos = [
 "Paris","Chelsea",
@@ -23,6 +23,9 @@ const equipos = [
 "Bodø/Glimt","Sporting CP",
 "Bayer Leverkusen","Arsenal"
 ];
+
+
+// ================= LIMITES =================
 
 const limites = {
 cuartos:8,
@@ -70,39 +73,6 @@ alert("Clave incorrecta");
 }
 
 
-// ================= SELECT NOMBRES =================
-
-function cargarSelectNombres(){
-
-const select=document.getElementById("selectNombre");
-
-select.innerHTML=`<option value="">Nuevo participante</option>`;
-
-Object.keys(participantes).forEach(id=>{
-
-const p=participantes[id];
-
-select.innerHTML+=`
-<option value="${p.nombre}">
-${p.nombre}
-</option>
-`;
-
-});
-
-}
-
-document.getElementById("selectNombre").addEventListener("change",function(){
-
-const val=this.value;
-
-if(val){
-document.getElementById("nombre").value=val;
-}
-
-});
-
-
 // ================= ELIMINAR =================
 
 function eliminarParticipante(id){
@@ -119,7 +89,7 @@ db.ref("participantes/"+id).remove();
 }
 
 
-// ================= PANEL PARTICIPANTE =================
+// ================= PANEL =================
 
 function renderPanel(){
 
@@ -318,7 +288,7 @@ return total;
 }
 
 
-// ================= LISTA =================
+// ================= LISTA CON COLORES =================
 
 function renderLista(){
 
@@ -333,7 +303,31 @@ let picksHTML="";
 
 Object.keys(p.picks||{}).forEach(fase=>{
 
-picksHTML+=`<div><b>${fase}</b>: ${p.picks[fase].join(" • ")}</div>`;
+let equiposHTML="";
+
+(p.picks[fase] || []).forEach(eq=>{
+
+let clase="";
+
+if(resultados[fase]){
+
+if(resultados[fase].includes(eq)){
+clase="ok";
+}else{
+clase="fail";
+}
+
+}
+
+equiposHTML+=`<span class="${clase}">${eq}</span>`;
+
+});
+
+picksHTML+=`
+<div>
+<b>${fase}</b>: ${equiposHTML}
+</div>
+`;
 
 });
 
@@ -341,6 +335,7 @@ const puntos=calcularPuntos(p.picks);
 
 cont.innerHTML+=`
 <div class="participante">
+
 <b>${p.nombre}</b> — ${puntos} pts
 
 ${admin ? `
@@ -350,6 +345,7 @@ Eliminar
 ` : ""}
 
 ${picksHTML}
+
 </div>
 `;
 
@@ -382,9 +378,7 @@ arr.sort((a,b)=>b.puntos-a.puntos);
 cont.innerHTML="";
 
 arr.forEach((p,i)=>{
-
 cont.innerHTML+=`<div>${i+1}. ${p.nombre} — ${p.puntos} pts</div>`;
-
 });
 
 }
@@ -405,5 +399,4 @@ renderLista();
 db.ref("participantes").on("value",snap=>{
 participantes=snap.val()||{};
 renderLista();
-cargarSelectNombres();
 });
