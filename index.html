@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Champions Top 8</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -16,7 +17,7 @@
   <div class="card">
     <h2>📝 Participante</h2>
 
-    <input type="text" id="nombre" placeholder="Nombre" />
+    <input type="text" id="nombre" placeholder="Nombre del participante">
 
     <h3>Selecciona tu Top 8</h3>
     <div id="equipos" class="equipos-grid"></div>
@@ -30,7 +31,7 @@
   <div class="card">
     <h2>🔐 Acceso Admin</h2>
 
-    <input type="password" id="adminPass" placeholder="Clave admin" />
+    <input type="password" id="adminPass" placeholder="Clave admin">
 
     <div class="center">
       <button class="btn green" onclick="activarAdmin()">Entrar</button>
@@ -40,7 +41,7 @@
     <p id="modo">Modo 👀 Solo ver</p>
   </div>
 
-  <!-- Lista -->
+  <!-- Participantes -->
   <div class="card">
     <h2>👥 Participantes</h2>
     <div id="lista"></div>
@@ -48,8 +49,11 @@
 
 </div>
 
+<!-- Firebase compat -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
 <script src="script.js"></script>
+
 </body>
 </html>
