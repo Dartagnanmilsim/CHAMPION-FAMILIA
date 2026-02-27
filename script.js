@@ -22,7 +22,6 @@ let participantes={};
 let resultados={};
 let config={};
 
-// CREAR EQUIPOS
 function crearEquipos(containerId){
 
   const cont=document.getElementById(containerId);
@@ -44,13 +43,9 @@ function crearEquipos(containerId){
   });
 }
 
-// PARTICIPANTE
 crearEquipos("equipos");
-
-// RESULTADOS
 fases.forEach(f=>crearEquipos(f));
 
-// GUARDAR PARTICIPANTE
 function guardar(){
 
   const nombre=document.getElementById("nombre").value.trim();
@@ -69,7 +64,6 @@ function guardar(){
   db.ref("participantes").push({nombre,top8});
 }
 
-// ADMIN
 function activarAdmin(){
 
   const pass=document.getElementById("adminPass").value;
@@ -85,7 +79,6 @@ function activarAdmin(){
   }
 }
 
-// CONFIG
 function guardarConfig(){
 
   config={
@@ -98,7 +91,6 @@ function guardarConfig(){
   db.ref("configuracion").set(config);
 }
 
-// RESULTADOS
 function guardarResultados(){
 
   const data={};
@@ -111,7 +103,6 @@ function guardarResultados(){
   db.ref("resultados").set(data);
 }
 
-// BORRAR
 function borrar(id){
   db.ref("participantes/"+id).remove();
 }
@@ -120,7 +111,6 @@ function borrarTodo(){
   db.ref("participantes").remove();
 }
 
-// CALCULAR PUNTOS
 function calcularPuntos(top8){
 
   let pts=0;
@@ -140,7 +130,6 @@ function calcularPuntos(top8){
   return pts;
 }
 
-// LISTENERS
 db.ref("participantes").on("value",snap=>{
   participantes=snap.val()||{};
   render();
@@ -156,7 +145,6 @@ db.ref("configuracion").on("value",snap=>{
   render();
 });
 
-// RENDER
 function render(){
 
   const lista=document.getElementById("lista");
