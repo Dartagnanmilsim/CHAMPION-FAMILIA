@@ -27,8 +27,6 @@ h1 {
   text-align: center;
 }
 
-/* INPUTS MODERNOS */
-
 .input-group {
   margin-bottom: 15px;
 }
@@ -41,7 +39,6 @@ h1 {
   font-size: 16px;
   background: #f9fafc;
   outline: none;
-  transition: 0.2s;
 }
 
 .input-group input:focus {
@@ -49,8 +46,6 @@ h1 {
   background: #fff;
   box-shadow: 0 0 0 3px rgba(76,175,80,0.15);
 }
-
-/* BOTONES */
 
 .btn {
   width: 85%;
@@ -71,12 +66,11 @@ h1 {
   background: linear-gradient(135deg,#E53935,#D32F2F);
 }
 
-/* EQUIPOS */
-
 .equipos-grid {
   display: grid;
   grid-template-columns: repeat(2,1fr);
   gap: 10px;
+  margin-bottom: 15px;
 }
 
 .equipo {
@@ -97,8 +91,6 @@ h1 {
   background: linear-gradient(135deg,#4CAF50,#43A047);
   color: white;
 }
-
-/* FILAS CONFIG */
 
 .fase-row {
   display: flex;
