@@ -14,12 +14,20 @@ const equipos = [
 "Porto","Leipzig","Juventus","Chelsea"
 ];
 
-const fases=["cuartos","semifinal","final","campeon"];
+const limites = {
+  cuartos:8,
+  semifinal:4,
+  final:2,
+  campeon:1
+};
+
+const fases = Object.keys(limites);
 
 let adminActivo=false;
-let participantes={};
 let config={};
+let participantes={};
 let resultados={};
+
 
 // ================= ADMIN
 
@@ -43,6 +51,51 @@ function activarAdmin(){
   }
 
 }
+
+
+// ================= PANEL PARTICIPANTE
+
+function renderPanelParticipante(){
+
+  const panel=document.getElementById("panelFasesParticipante");
+  panel.innerHTML="";
+
+  fases.forEach(f=>{
+
+    if(!config[f]) return;
+
+    panel.innerHTML+=`
+      <h3>${f.toUpperCase()} (elige ${limites[f]})</h3>
+      <div id="pick-${f}" class="equipos-grid"></div>
+    `;
+
+    const cont=document.getElementById(`pick-${f}`);
+
+    equipos.forEach(eq=>{
+
+      const div=document.createElement("div");
+      div.className="equipo";
+      div.innerText=eq;
+
+      div.onclick=()=>{
+
+        const activos=cont.querySelectorAll(".activo");
+
+        if(!div.classList.contains("activo") && activos.length>=limites[f])
+          return;
+
+        div.classList.toggle("activo");
+
+      };
+
+      cont.appendChild(div);
+
+    });
+
+  });
+
+}
+
 
 // ================= RESULTADOS ADMIN
 
@@ -90,6 +143,7 @@ function guardarResultados(){
 
 }
 
+
 // ================= CONFIG
 
 function guardarConfig(){
@@ -105,12 +159,14 @@ function guardarConfig(){
 
 }
 
-// ================= PARTICIPANTES
+
+// ================= GUARDAR PARTICIPANTE
 
 function guardar(){
 
-  const nombre=document.getElementById("nombre").value.trim();
-  if(!nombre) return alert("Ingresa nombre");
+  const nombre=document.getElementById("nombre").value;
+
+  if(!nombre) return alert("Nombre");
 
   const existe=Object.values(participantes)
   .some(p=>p.nombre.toLowerCase()===nombre.toLowerCase());
@@ -121,6 +177,7 @@ function guardar(){
 
 }
 
+
 // ================= RANKING
 
 function renderRanking(){
@@ -129,22 +186,22 @@ function renderRanking(){
   ranking.innerHTML="";
 
   Object.values(participantes).forEach(p=>{
-
     ranking.innerHTML+=`<div>${p.nombre}</div>`;
-
   });
 
 }
 
+
 // ================= LISTENERS
+
+db.ref("configuracion").on("value",snap=>{
+  config=snap.val()||{};
+  renderPanelParticipante();
+});
 
 db.ref("participantes").on("value",snap=>{
   participantes=snap.val()||{};
   renderRanking();
-});
-
-db.ref("configuracion").on("value",snap=>{
-  config=snap.val()||{};
 });
 
 db.ref("resultados").on("value",snap=>{
