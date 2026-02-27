@@ -92,3 +92,14 @@ input {
   border-radius: 12px;
   margin-bottom: 10px;
 }
+
+.puntos-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f7f7f7;
+  padding: 12px 15px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  font-size: 15px;
+}
