@@ -2,52 +2,43 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Champions Top 8</title>
-
 <link rel="stylesheet" href="styles.css">
 
-<script type="module" src="script.js"></script>
-
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 </head>
-<body>
 
-<div class="container">
+<body>
 
 <h1>⚽ Champions Top 8</h1>
 
-<!-- PARTICIPANTE -->
 <div class="card">
 
 <h2>📝 Participante</h2>
 
-<select id="participanteSelect"></select>
+<select id="selectorNombre"></select>
+<input type="text" id="nombreNuevo" placeholder="Nuevo nombre">
 
-<input type="text" id="nuevoNombre" placeholder="Nuevo nombre (opcional)">
-
-<button id="guardarParticipante">Guardar</button>
+<button onclick="guardarParticipante()">Guardar</button>
 
 </div>
 
 
-<!-- ADMIN -->
 <div class="card">
 
 <h2>🔐 Acceso Admin</h2>
 
-<input type="password" id="adminPass" placeholder="Clave admin">
+<input type="password" id="claveAdmin" placeholder="Clave admin">
+<button onclick="loginAdmin()">Entrar</button>
+<button onclick="borrarTodo()">Borrar Todo</button>
 
-<button id="loginAdmin">Entrar</button>
-
-<button id="borrarTodo">Borrar Todo</button>
-
-<p id="modoAdmin">Modo 👀 Usuario</p>
+<p id="modoAdmin">Modo 👀 Solo ver</p>
 
 </div>
 
 
-<!-- FASES -->
-<div class="card adminOnly">
+<div class="card">
 
 <h2>⚙️ Fases activas</h2>
 
@@ -56,36 +47,22 @@
 <label><input type="checkbox" id="faseFinal"> Final</label>
 <label><input type="checkbox" id="faseCampeon"> Campeón</label>
 
-<button id="guardarFases">Guardar</button>
+<button onclick="guardarFases()">Guardar</button>
 
 </div>
 
 
-<!-- RESULTADOS -->
-<div class="card adminOnly">
+<div class="card">
 
 <h2>🏆 Resultados</h2>
 
-<div id="resultadosEquipos"></div>
+<div id="equiposResultados" class="gridEquipos"></div>
 
-<button id="guardarResultados">Guardar Resultados</button>
-
-</div>
-
-
-<!-- EQUIPOS USUARIO -->
-<div class="card">
-
-<h2>🎯 Elegir Equipos</h2>
-
-<div id="equiposContainer"></div>
-
-<button id="guardarEquipos">Guardar Elección</button>
+<button onclick="guardarResultados()">Guardar Resultados</button>
 
 </div>
 
 
-<!-- PARTICIPANTES -->
 <div class="card">
 
 <h2>👥 Participantes</h2>
@@ -95,32 +72,7 @@
 </div>
 
 
-<!-- RANKING -->
-<div class="card">
-
-<h2>🏆 Ranking</h2>
-
-<div id="ranking"></div>
-
-</div>
-
-
-<!-- TABLA PUNTOS -->
-<div class="card">
-
-<h2>📊 Sistema de Puntos</h2>
-
-<ul>
-<li>Cuartos: 1 punto</li>
-<li>Semifinal: 2 puntos</li>
-<li>Final: 3 puntos</li>
-<li>Campeón: 5 puntos</li>
-</ul>
-
-</div>
-
-
-</div>
+<script src="script.js"></script>
 
 </body>
 </html>
