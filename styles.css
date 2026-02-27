@@ -74,3 +74,22 @@ background:#e53935;
 width:auto;
 margin-top:5px;
 }
+
+
+/* ===== COLORES RESULTADOS ===== */
+
+.ok{
+background:#c8f7c5;
+padding:4px 6px;
+border-radius:6px;
+margin:2px;
+display:inline-block;
+}
+
+.fail{
+background:#ffcdd2;
+padding:4px 6px;
+border-radius:6px;
+margin:2px;
+display:inline-block;
+}
