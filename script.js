@@ -288,7 +288,7 @@ return total;
 }
 
 
-// ================= LISTA CON COLORES =================
+// ================= LISTA =================
 
 function renderLista(){
 
@@ -305,7 +305,7 @@ Object.keys(p.picks||{}).forEach(fase=>{
 
 let equiposHTML="";
 
-(p.picks[fase] || []).forEach(eq=>{
+(p.picks[fase] || []).forEach((eq,index)=>{
 
 let clase="";
 
@@ -320,6 +320,10 @@ clase="fail";
 }
 
 equiposHTML+=`<span class="${clase}">${eq}</span>`;
+
+if(index < p.picks[fase].length-1){
+equiposHTML+=" - ";
+}
 
 });
 
