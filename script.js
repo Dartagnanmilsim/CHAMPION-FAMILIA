@@ -11,7 +11,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 
-// ================= EQUIPOS 2026 =================
+// ================= EQUIPOS =================
 
 const equipos = [
 "Paris","Chelsea",
@@ -25,7 +25,7 @@ const equipos = [
 ];
 
 
-// ================= LIMITES =================
+// ================= CONFIGURACIÓN =================
 
 const limites = {
 cuartos:8,
@@ -40,6 +40,7 @@ semifinal:2,
 final:3,
 campeon:5
 };
+
 
 let admin=false;
 let config={};
@@ -73,6 +74,49 @@ alert("Clave incorrecta");
 }
 
 
+// ================= SELECT PARTICIPANTES =================
+
+function cargarSelectNombres(){
+
+const select = document.getElementById("selectNombre");
+
+select.innerHTML = `<option value="">Nuevo participante</option>`;
+
+Object.keys(participantes || {}).forEach(id => {
+
+const p = participantes[id];
+
+if(!p || !p.nombre) return;
+
+select.innerHTML += `
+<option value="${id}">
+${p.nombre}
+</option>
+`;
+
+});
+
+}
+
+
+document.getElementById("selectNombre").addEventListener("change", function(){
+
+const id = this.value;
+
+if(!id){
+document.getElementById("nombre").value="";
+return;
+}
+
+const participante = participantes[id];
+
+if(participante){
+document.getElementById("nombre").value = participante.nombre;
+}
+
+});
+
+
 // ================= ELIMINAR =================
 
 function eliminarParticipante(id){
@@ -89,7 +133,7 @@ db.ref("participantes/"+id).remove();
 }
 
 
-// ================= PANEL =================
+// ================= PANEL PARTICIPANTE =================
 
 function renderPanel(){
 
@@ -135,7 +179,7 @@ cont.appendChild(div);
 }
 
 
-// ================= GUARDAR =================
+// ================= GUARDAR PICKS =================
 
 function guardar(){
 
@@ -156,6 +200,7 @@ if(lista.length>0) picks[fase]=lista;
 
 });
 
+
 let idExistente=null;
 
 Object.keys(participantes).forEach(id=>{
@@ -164,6 +209,7 @@ if(participantes[id].nombre.toLowerCase()===nombre.toLowerCase())
 idExistente=id;
 
 });
+
 
 if(idExistente){
 
@@ -221,6 +267,8 @@ function renderResultadosAdmin(){
 Object.keys(limites).forEach(fase=>{
 
 const cont=document.getElementById("res-"+fase);
+if(!cont) return;
+
 cont.innerHTML=`<h4>${fase}</h4><div class="equipos" id="res-grid-${fase}"></div>`;
 
 const grid=document.getElementById(`res-grid-${fase}`);
@@ -288,6 +336,34 @@ return total;
 }
 
 
+// ================= WHATSAPP =================
+
+function enviarWhatsApp(nombre,picks){
+
+let mensaje=`${nombre} — Puntuación Champions\n\n`;
+
+Object.keys(picks||{}).forEach(fase=>{
+
+mensaje+=`${fase.toUpperCase()}\n`;
+
+picks[fase].forEach(eq=>{
+
+let ok=resultados[fase]?.includes(eq);
+
+mensaje+=`${ok?"✅":"❌"} ${eq}\n`;
+
+});
+
+mensaje+="\n";
+
+});
+
+const url=`https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+window.open(url,"_blank");
+
+}
+
+
 // ================= LISTA =================
 
 function renderLista(){
@@ -305,7 +381,7 @@ Object.keys(p.picks||{}).forEach(fase=>{
 
 let equiposHTML="";
 
-(p.picks[fase] || []).forEach((eq,index)=>{
+(p.picks[fase] || []).forEach(eq=>{
 
 let clase="";
 
@@ -319,11 +395,7 @@ clase="fail";
 
 }
 
-equiposHTML+=`<span class="${clase}">${eq}</span>`;
-
-if(index < p.picks[fase].length-1){
-equiposHTML+=" - ";
-}
+equiposHTML+=`<span class="${clase}">${eq}</span> - `;
 
 });
 
@@ -341,6 +413,10 @@ cont.innerHTML+=`
 <div class="participante">
 
 <b>${p.nombre}</b> — ${puntos} pts
+
+<button onclick="enviarWhatsApp('${p.nombre}', ${JSON.stringify(p.picks).replace(/"/g, '&quot;')})">
+WhatsApp
+</button>
 
 ${admin ? `
 <button class="eliminar" onclick="eliminarParticipante('${id}')">
@@ -382,13 +458,15 @@ arr.sort((a,b)=>b.puntos-a.puntos);
 cont.innerHTML="";
 
 arr.forEach((p,i)=>{
+
 cont.innerHTML+=`<div>${i+1}. ${p.nombre} — ${p.puntos} pts</div>`;
+
 });
 
 }
 
 
-// ================= FIREBASE =================
+// ================= FIREBASE LISTENERS =================
 
 db.ref("config").on("value",snap=>{
 config=snap.val()||{};
@@ -403,4 +481,5 @@ renderLista();
 db.ref("participantes").on("value",snap=>{
 participantes=snap.val()||{};
 renderLista();
+cargarSelectNombres();
 });
